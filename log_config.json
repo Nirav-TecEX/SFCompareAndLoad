@@ -1,0 +1,56 @@
+{
+    "version": 1,
+    "disable_existing_loggers": true,
+    "formatters": {
+        "stream": {
+            "level": "INFO",
+            "format": "%(asctime)s - %(name)s - %(levelname)s :: %(message)s"
+        },
+        "file": {
+            "level": "DEBUG",
+            "format": "%(asctime)s - %(name)s - %(levelname)s @ %(funcName)s:%(lineno)d :: %(message)s\n"
+        }
+    },
+    "handlers": {
+        "streamhandler": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "stream",
+            "stream": "ext://sys.stdout"
+        },
+        "filehandler_1": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/fh1.log",
+            "formatter": "file",
+            "level": "DEBUG",
+            "when":"midnight",
+            "backupCount":3
+        },
+        "filehandler_2": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/fh2.log",
+            "formatter": "file",
+            "level": "DEBUG",
+            "when":"midnight",
+            "backupCount":3
+        }
+    },
+    "loggers": {
+        "logger_1": {
+            "level": "DEBUG",
+            "handlers": [
+                "streamhandler",
+                "filehandler_1"
+            ],
+            "propagate": 0
+        },
+        "logger_2": {
+            "level": "DEBUG",
+            "handlers": [
+                "streamhandler",
+                "filehandler_2"
+            ],
+            "propagate": 0
+        }
+    }
+}
