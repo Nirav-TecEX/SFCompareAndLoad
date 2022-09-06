@@ -7,12 +7,12 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">ABC</h3>
+  <h3 align="center">SF Compare and Load</h3>
 
   <p align="center">
-    MORE!
+    An Org Object-Mapping SalesForce Tool
     <br />
-    <a href="https://team.tecexlabs.dev/tecex-rules-system/docs/"><strong>LINKS »</strong></a>
+    <a href="https://github.com/Nirav-TecEX/SFCompareAndLoad"><strong>LINKS »</strong></a>
     <br />
   </p>
 </div>
@@ -53,53 +53,42 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-ABC
+This tool is used to map _unique ids_ between orgs. It uses a matching string to do so. The project uses a .env file for defining variables. The matching string for an object can be changed in the .env file. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 
 ### Built With
-
-* [![Python][python-coverage.py]][coverage.py-url]
+_No external projects._
 
 ## Installation
-This app is a Django App that uses Celery to process the tasks with RabbitMQ as its messaging broker. RabbitMQ requires Erlang and the bot requires Maven and Java.
+Head over to the directory wehre you want to install the project and perform the following:
+1. Clone the repo using
+    ```
+    $ git clone
+    ```
+2. Head into the repo using:
+    ```
+    $ cd SFCompareAndLoad
+    ```
 
 ### Requirements
-_Requirements_
-
-1. Instruction 1 [https://example.com](https://example.com)
-    - Running the command below should return:
-        > $ java --version
-        
-        	> java 11.0.15.1 2022-04-22 LTS
-        	> Java(TM) SE Runtime Environment 18.9 (build 11.0.15.1+2-LTS-10)
-        	> Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.15.1+2-LTS-10, mixed mode)
-	
-2. Location:
-    ```
-    ABC/DE/F
-    ```        	
+Please ensure that your .env is configured correctly.     	
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Usage
-Once the system has all of the requirements, the server can be started. Head over to the file directory "MedExServer\medex\" and run
-  ```sh
-	$ python manage.py runserver --noreload
+Given that all of the requirements are met, the project can be used. In the file directory open up a powershell and run 
+  ```
+	$ python main.py
   ```
 This will start up the server. First you will see the RabbitMQ process start up this can take up to 30 seconds. Thereafter, the worker is started. You should see another terminal startup. This also takes some time to startup.
 
 Once these are up, you can head over to localhost or the server address and started uploading files.
 
 ### Clean-up
-User data is stored in:
-```
-ABC/DE/F/G
-```
-
-**If an error is thrown, the data is not cleared.**
+Local data is stored in `../SFCompareAndLoad/temp/`, which is created when you run the program (same as the log folder).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -107,7 +96,7 @@ ABC/DE/F/G
 Information to help with finding issues with the app can be found below.
 
 ### Loggers
-The log config files are located in the MedExServer/medex folder (log_config.json).
+The log config files are located in `../SFCompareAndLoad/logs/`, which is created when you run the program. The loggers are configured by load the log_config.json file in the root directory.
 
 The loaded loggers are:
 ``` 
@@ -126,18 +115,11 @@ Outputs can be found at:
 <!-- ROADMAP -->
 ## Roadmap
 
-- [x] Run Newman Tests Locally
-- [x] Hit the RulesEng at an endpoint with the Requests
-- [x] Create a process for the tests
-- [x] Process results
-    - [x] Filter output and remove unnecessary information
-    - [x] Store output
-    - [ ] Relay information to testuser
-- [ ] Add code coverage
-- [ ] Integrate with local RulesEngine
-- [ ] Integrate with any locally run RulesEngine
-- [ ] Add scheduler to update the local excel files
-
+- [ ] Build version 1 for a single object
+  - [ ] Process to choose create matching string -> ~~dynamic~~ or static/from env?
+- [ ] Allow configurations for the matching string from the .env
+- [ ] Create an executable/ batch file
+- [ ] Add more object mappings
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -152,7 +134,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Nirav Surajlal - niravs@tecex.com
 
-Project Link: [https://github.com/Nirav-TecEX/RulesEngineTests.git](https://github.com/Nirav-TecEX/RulesEngineTests.git)
+Project Link: [https://github.com/Nirav-TecEX/SFCompareAndLoad](https://github.com/Nirav-TecEX/SFCompareAndLoad)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
