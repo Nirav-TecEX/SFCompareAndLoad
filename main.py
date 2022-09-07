@@ -7,6 +7,7 @@ from configs.config_checker import check_configs_exist, get_user_configs
 __ENVDATA__ = config
 load_setup(__ENVDATA__("CHECK_FOLDERS"),
            __ENVDATA__("LOAD_LOGGERS"))
+__logger = logging.getLogger("main")
 
 #----------------------------------------------------------------------------
 def configs_correct():
@@ -54,9 +55,19 @@ def get_access_variables(user_config):
 #----------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------
-def main():
-    __logger = logging.getLogger("main")
+def create_query_strs(obj_list):
+    dict_of_query_strs = {}
+    for obj_name in obj_list:       
+        obj_list[obj_name]['min_fields'].insert(0, 'Id')
+        selections = ', '.join(obj_list[obj_name]['min_fields'])
+        query_str = f"SELECT {selections} FROM {obj_name}"
+        dict_of_query_strs[obj_name] = query_str
+        
+    return dict_of_query_strs
+#----------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------
+def main():
     if not configs_correct():
         return 1
     
@@ -69,6 +80,11 @@ def main():
         return 2
     
     __logger.info(f"Running the match algorithm for: {', '.join(user_config['obj_list'])}")
+    dict_of_query_strs = create_query_strs(user_config['obj_list'])
+    
+    print("Queries:")
+    for key in dict_of_query_strs:
+        print(f"\t {dict_of_query_strs[key]}")
 
 #----------------------------------------------------------------------------
 
