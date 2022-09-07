@@ -4,6 +4,7 @@ import os
 
 __logger = logging.getLogger("main").getChild("config_checker")
 
+#-----------------------------------------------------------------------------------------------------------
 def check_configs_exist():
     config_reader = configparser.ConfigParser()
     user_ini = os.path.join(os.getcwd(), "configs", "user.ini")
@@ -20,14 +21,18 @@ def check_configs_exist():
             create_config(config_fp)
             
     return non_existing_configs
+#-----------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------
 def create_config(path):
     config_writer = configparser.ConfigParser()
     config_writer.optionxform = str
     config_writer['DEFAULT'] = {"Minimum_Fields": "Example,Fields", "Additional_Fields": "More,Examples"}
     with open(path, 'w') as configfile:
         config_writer.write(configfile)
+#-----------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------
 def get_user_configs():
     config_reader = configparser.ConfigParser()
     user_ini = os.path.join(os.getcwd(), "configs", "user.ini")
@@ -37,6 +42,27 @@ def get_user_configs():
     user_config['org_env'] = config_reader.get("DEFAULT", "Org_Env")
     user_config['dst_env'] = config_reader.get("DEFAULT", "DEST_Org_Name")
     user_config['src_env'] = config_reader.get("DEFAULT", "SRCE_Org_Name")
-    user_config['obj_list'] = config_reader.get("DEFAULT", "Object_List").split(',')
+    # user_config['obj_list'] = config_reader.get("DEFAULT", "Object_List").split(',')
+    user_config['obj_list'] = get_WHERE_fields(
+                    config_reader.get("DEFAULT", "Object_List").split(','))
     
     return user_config
+#-----------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------
+def get_WHERE_fields(obj_list):
+    config_reader = configparser.ConfigParser()
+    all_obj_items = {}
+
+    for obj in obj_list:
+        __logger.info(f"Getting WHERE fields for {obj}")
+        user_ini = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
+        config_reader.read_file(open(user_ini))
+
+        min_fields = config_reader.get("DEFAULT", "Minimum_Fields").split(',')
+        add_fields = config_reader.get("DEFAULT", "Additional_Fields").split(',')
+
+        all_obj_items[obj] = {"min_fields": min_fields, "add_fields": add_fields}
+    
+    return all_obj_items
+#-----------------------------------------------------------------------------------------------------------

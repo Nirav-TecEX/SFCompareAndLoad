@@ -44,10 +44,11 @@ def get_access_variables(user_config):
         access_str = access_str + 'Stage'
         if_stage = '_'
     
-    user_config['details'] = {'username': __ENVDATA__(access_str.replace('_', f'_Username{if_stage}')),
-                              'password': __ENVDATA__(access_str.replace('_', f'_Password{if_stage}')),
-                              'token': __ENVDATA__(access_str.replace('_', f'_Token{if_stage}'))}
-    
+    user_config['details'] = \
+    {'username': __ENVDATA__(access_str.replace('_', f'_Username{if_stage}')),
+     'password': __ENVDATA__(access_str.replace('_', f'_Password{if_stage}')),
+     'token': __ENVDATA__(access_str.replace('_', f'_Token{if_stage}'))}
+
     return user_config
     
 #----------------------------------------------------------------------------
