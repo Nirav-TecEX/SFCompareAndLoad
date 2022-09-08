@@ -2,7 +2,7 @@ import logging
 import configparser
 import os
 
-__logger = logging.getLogger("main").getChild("config_checker")
+__logger = logging.getLogger("main").getChild(__name__)
 
 #-----------------------------------------------------------------------------------------------------------
 def check_configs_exist():
@@ -53,9 +53,8 @@ def get_user_configs():
 def get_WHERE_fields(obj_list):
     config_reader = configparser.ConfigParser()
     all_obj_items = {}
-
+    __logger.info(f"Getting WHERE fields and generating queries from configs. ")
     for obj in obj_list:
-        __logger.info(f"Getting WHERE fields for {obj}")
         user_ini = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
         config_reader.read_file(open(user_ini))
 

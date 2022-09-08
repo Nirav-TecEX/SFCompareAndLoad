@@ -33,7 +33,8 @@ def load_loggers():
 def check_folders():
     cwd = os.path.join(os.getcwd())
     paths = {'logs': os.path.join(cwd, "logs"),
-             'temp': os.path.join(cwd, "temp")}
+             'temp': os.path.join(cwd, "temp"),
+             'cach': os.path.join(cwd, "cache"),}
 
     print("\nChecking Folders...")
     for key in paths.keys():

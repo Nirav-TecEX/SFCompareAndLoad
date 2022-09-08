@@ -2,89 +2,40 @@ from decouple import config
 import logging
 
 from setup.load_setup import load_setup
-from configs.config_checker import check_configs_exist, get_user_configs
+from matcher.setup import configs_correct, get_access_variables, create_query_strs
+from matcher.match import update_cache
+from configs.config_checker import get_user_configs
 
 __ENVDATA__ = config
 load_setup(__ENVDATA__("CHECK_FOLDERS"),
            __ENVDATA__("LOAD_LOGGERS"))
+
 __logger = logging.getLogger("main")
 
 #----------------------------------------------------------------------------
-def configs_correct():
-    __logger = logging.getLogger("main")
-
-    print("Checking configs")
-    some_configs_not_present = check_configs_exist()
-
-    if some_configs_not_present:
-        print("--- CONFIGS NOT PRESENT ---")
-        for config_not_present in some_configs_not_present:
-            print(f"\t {config_not_present}") 
-        print("Please update files and try again.")
-        return False
-    else:
-        __logger.info("All config files present. ")
-        return True
-#----------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------
-def get_access_variables(user_config):
-    access_str = ''
-    
-    dest_org = user_config['dst_env']
-    if 'tec' in dest_org:
-        access_str = access_str + 'tec_'
-    elif 'zee' in dest_org:
-        access_str = access_str + 'zee_'
-    elif 'med' in dest_org:
-        access_str = access_str + 'med_' 
-    
-    if_stage = ''
-    env = user_config['org_env']
-    if not 'prod' in env:
-        access_str = access_str + 'Stage'
-        if_stage = '_'
-    
-    user_config['details'] = \
-    {'username': __ENVDATA__(access_str.replace('_', f'_Username{if_stage}')),
-     'password': __ENVDATA__(access_str.replace('_', f'_Password{if_stage}')),
-     'token': __ENVDATA__(access_str.replace('_', f'_Token{if_stage}'))}
-
-    return user_config
-    
-#----------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------
-def create_query_strs(obj_list):
-    dict_of_query_strs = {}
-    for obj_name in obj_list:       
-        obj_list[obj_name]['min_fields'].insert(0, 'Id')
-        selections = ', '.join(obj_list[obj_name]['min_fields'])
-        query_str = f"SELECT {selections} FROM {obj_name}"
-        dict_of_query_strs[obj_name] = query_str
-        
-    return dict_of_query_strs
-#----------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------
 def main():
+    # --------- P1 --------------------------------------------------
     if not configs_correct():
         return 1
     
+    # --------- P2 --------------------------------------------------
     try:
         user_config = get_user_configs()
-        user_config = get_access_variables(user_config)
+        user_config = get_access_variables(user_config, __ENVDATA__)
     except Exception as e:
         __logger.info("Unable to read user configs from configs/user.ini")
         __logger.debug(e)
         return 2
     
+    # --------- P3 --------------------------------------------------
     __logger.info(f"Running the match algorithm for: {', '.join(user_config['obj_list'])}")
     dict_of_query_strs = create_query_strs(user_config['obj_list'])
-    
     print("Queries:")
     for key in dict_of_query_strs:
         print(f"\t {dict_of_query_strs[key]}")
+    
+    # --------- P4 --------------------------------------------------
+    update_cache(user_config, dict_of_query_strs)
 
 #----------------------------------------------------------------------------
 
