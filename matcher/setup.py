@@ -22,26 +22,31 @@ def configs_correct():
 
 #----------------------------------------------------------------------------
 def get_access_variables(user_config, __envdata__):
+    """ Creates the user's config and the selects which user to perform
+        updates with. """
     access_str = ''
     
     dest_org = user_config['dst_env']
+    org = dest_org.split('--')[1]
     if 'tec' in dest_org:
         access_str = access_str + 'tec_'
     elif 'zee' in dest_org:
         access_str = access_str + 'zee_'
     elif 'med' in dest_org:
         access_str = access_str + 'med_' 
-    
-    if_stage = ''
-    env = user_config['org_env']
-    if not 'prod' in env:
-        access_str = access_str + 'Stage'
-        if_stage = '_'
+
+    if not 'prod' in org:
+        access_str = access_str + org + "_"
+    # if_stage = ''
+    # env = user_config['org_env']
+    # if not 'prod' in env:
+    #     access_str = access_str + 'Stage'
+    #     if_stage = '_'
     
     user_config['details'] = \
-    {'username': __envdata__(access_str.replace('_', f'_Username{if_stage}')),
-     'password': __envdata__(access_str.replace('_', f'_Password{if_stage}')),
-     'token': __envdata__(access_str.replace('_', f'_Token{if_stage}'))}
+    {'username': __envdata__(f'{access_str}Username'),
+     'password': __envdata__(f'{access_str}Password'),
+     'token': __envdata__(f'{access_str}Token')}
 
     return user_config
     

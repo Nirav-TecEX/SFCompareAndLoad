@@ -39,7 +39,7 @@ def get_user_configs():
     config_reader.read_file(open(user_ini))
 
     user_config = {}
-    user_config['org_env'] = config_reader.get("DEFAULT", "Org_Env")
+    # user_config['org_env'] = config_reader.get("DEFAULT", "Org_Env")
     user_config['dst_env'] = config_reader.get("DEFAULT", "DEST_Org_Name")
     user_config['src_env'] = config_reader.get("DEFAULT", "SRCE_Org_Name")
     # user_config['obj_list'] = config_reader.get("DEFAULT", "Object_List").split(',')

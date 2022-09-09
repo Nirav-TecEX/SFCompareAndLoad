@@ -1,5 +1,15 @@
+"""
+The user inputs a org either from the ini or an input, and this selects
+which user credentials to use. The chosen user credentials 'selects' the
+org to query and UPDATE from. 
+
+For now all of the data comes from an excel spreadsheet. The user defines 
+which org to try and find a matching string from. 
+"""
+
 from decouple import config
 import logging
+import os
 
 from setup.load_setup import load_setup
 from matcher.setup import configs_correct, get_access_variables, create_query_strs
@@ -27,14 +37,25 @@ def main():
         __logger.debug(e)
         return 2
     
+    path = os.path.join(os.getcwd(), 'cache', f"{user_config['dst_env']}")
+    if not os.path.exists(path):
+        os.mkdir(path)
+    if not user_config['src_env'].lower() == 'excel':
+        path = os.path.join(os.getcwd(), 'cache', f"{user_config['src_env']}")
+        if not os.path.exists(path):
+            os.mkdir(path)
+
     # --------- P3 --------------------------------------------------
-    __logger.info(f"Running the match algorithm for: {', '.join(user_config['obj_list'])}")
+    __logger.info(f"Creating queries ... ")
     dict_of_query_strs = create_query_strs(user_config['obj_list'])
     print("Queries:")
     for key in dict_of_query_strs:
         print(f"\t {dict_of_query_strs[key]}")
     
     # --------- P4 --------------------------------------------------
+    # this update cache uses data from the user.ini and updates for all
+    # necessary orgs and objects. Can add a check time last updated to
+    # prevent always updating 
     update_cache(user_config, dict_of_query_strs)
 
 #----------------------------------------------------------------------------
