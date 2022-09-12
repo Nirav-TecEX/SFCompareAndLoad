@@ -1,8 +1,8 @@
 import logging
 import os
 import pandas as pd
+import json
 
-from .setup import create_query_strs
 from .salesforce import ComplexSF
 
 __logger = logging.getLogger("matcher").getChild(__name__)
@@ -45,6 +45,18 @@ def update_cache(user_config, dict_of_query_strs=None):
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
+def create_query_strs(obj_list):
+    dict_of_query_strs = {}
+    for obj_name in obj_list:       
+        obj_list[obj_name]['min_fields'].insert(0, 'Id')
+        selections = ', '.join(obj_list[obj_name]['min_fields'])
+        query_str = f"SELECT {selections} FROM {obj_name}"
+        dict_of_query_strs[obj_name] = query_str
+        
+    return dict_of_query_strs
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
 def create_match_string(records, obj_key):
     records_with_match_str = []
     for record in records:
@@ -73,4 +85,16 @@ def save_records(records, obj, dst_env, sfObj: ComplexSF):
     with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
         df = pd.DataFrame.from_dict(records)
         df.to_excel(writer)
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def save_records_to_json(records, obj, dst_env, sfObj: ComplexSF):
+    path = os.path.join(os.getcwd(), 'cache', f'{dst_env}')
+    if isinstance(sfObj.environment, str):
+        json_path = os.path.join(path, f"{obj}-{sfObj.environment}.json")
+    else:
+        json_path = os.path.join(path, f"{obj}.json")
+    __logger.debug(f"Saving to: {json_path} ")
+    with open(json_path, 'w+') as outstream:
+        outstream.write(json.dumps(records, indent = 4))
 # ---------------------------------------------------------------------------------------------------------

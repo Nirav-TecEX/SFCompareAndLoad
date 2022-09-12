@@ -51,15 +51,3 @@ def get_access_variables(user_config, __envdata__):
     return user_config
     
 # ---------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------
-def create_query_strs(obj_list):
-    dict_of_query_strs = {}
-    for obj_name in obj_list:       
-        obj_list[obj_name]['min_fields'].insert(0, 'Id')
-        selections = ', '.join(obj_list[obj_name]['min_fields'])
-        query_str = f"SELECT {selections} FROM {obj_name}"
-        dict_of_query_strs[obj_name] = query_str
-        
-    return dict_of_query_strs
-# ---------------------------------------------------------------------------------------------------------

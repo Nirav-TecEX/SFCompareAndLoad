@@ -13,7 +13,7 @@ import os
 from datetime import datetime
 
 from setup.load_setup import load_setup
-from matcher.setup import configs_correct, get_access_variables, create_query_strs
+from matcher.setup import configs_correct, get_access_variables
 from matcher.updater import update_cache
 from matcher.match import match_ids, match_strings
 from configs.config_checker import get_user_configs
@@ -53,7 +53,7 @@ def main():
     # creates the query str and then updates cache.    
     # this update cache uses data from the user.ini and updates for all necessary orgs and objects. 
     # Can add a check time last updated to prevent always updating 
-    update_cache(user_config, dict_of_query_strs=None)
+    # update_cache(user_config, dict_of_query_strs=None)
 
     # --------- P4 --------------------------------------------------
     match_strings(os.path.join(os.getcwd(), "TestSheet1.xlsx"), user_config['dst_env'])

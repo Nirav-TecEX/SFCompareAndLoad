@@ -2,75 +2,9 @@ import logging
 import os
 import pandas as pd
 
-from .setup import create_query_strs
 from .salesforce import ComplexSF
 
 __logger = logging.getLogger("matcher").getChild(__name__)
-
-# # ---------------------------------------------------------------------------------------------------------
-# def update_cache(user_config, dict_of_query_strs=None):
-#     """ This function should check the necessary destination and source orgs and update the required 
-#         files as needed. It will update if the last update was not performed within the last 7 days. 
-
-#         param :: user_config          takes the data read from the user_config to know which orgs to check 
-#                                       for recently updated time.
-        
-#         (DEPRECATED) 
-#         param :: dict_of_query_strs   takes a dict of the generated query strs which were generated from 
-#                                       the user configs.
-        
-#         Still need to implement the timer checker. """
-
-#     __logger.info(f"Creating queries for updates ")
-#     dict_of_query_strs = create_query_strs(user_config['obj_list'])
-#     print("Queries:")
-#     for key in dict_of_query_strs:
-#         print(f"\t {dict_of_query_strs[key]}")
-
-#     sf = ComplexSF(user_config['dst_env'],
-#                    user_config['details']['username'],
-#                    user_config['details']['password'],
-#                    user_config['details']['token']) # sandbox=user_config['dst_env']
-
-#     for obj_key in dict_of_query_strs:
-#         records = sf.perform_query(dict_of_query_strs[obj_key])
-#         records_with_match_str = create_match_string(records, obj_key)
-
-#         save_records(records_with_match_str,
-#                         obj_key, 
-#                         user_config['dst_env'],
-#                         sf)
-# # ---------------------------------------------------------------------------------------------------------
-
-# # ---------------------------------------------------------------------------------------------------------
-# def create_match_string(records, obj_key):
-#     records_with_match_str = []
-#     for record in records:
-#         match_str = ''
-#         for attribute in record.keys():
-#             if attribute != 'attributes' and attribute != 'Id':
-#                 if record[attribute]:
-#                     attr_str = record[attribute]
-#                 else:
-#                     attr_str = ''
-#                 match_str = match_str + f"[{attr_str}]"
-#         match_str = match_str + f"@{obj_key}"
-#         record["Matching String"] = match_str
-#         records_with_match_str.append(record)
-#     return records_with_match_str
-# # ---------------------------------------------------------------------------------------------------------
-
-# # ---------------------------------------------------------------------------------------------------------
-# def save_records(records, obj, dst_env, sfObj: ComplexSF):
-#     path = os.path.join(os.getcwd(), 'cache', f'{dst_env}')
-#     if isinstance(sfObj.environment, str):
-#         excel_path = os.path.join(path, f"{obj}-{sfObj.environment}.xlsx")
-#     else:
-#         excel_path = os.path.join(path, f"{obj}.xlsx")
-#     with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
-#         df = pd.DataFrame.from_dict(records)
-#         df.to_excel(writer)
-# # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
 def match_ids(obj, src_org, dst_org, id=None):
@@ -105,14 +39,8 @@ def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None):
         - Can pssibly be made faster with searching algorithms. 
         
     """
-    
-    src_excel_path = os.path.join(os.getcwd(), f"{src_exl}")
-    src_excel = excelWB_to_dict(src_excel_path)
-    src_excel_rewrite = {}
 
-    # runs over each sheet
-    for sheet in src_excel.keys():
-        src_org = get_additional_information("salesforceorg", src_excel[sheet])
+    src_file, additional_information = parse_source_file(os.path.join(os.getcwd(), f"{src_exl}"))
 
     dst_org_excel_path = os.path.join(os.getcwd(), 'cache', dst_org, f"{obj}.xlsx")
     dst_org_excel = pd.read_excel(dst_org_excel_path)
@@ -124,6 +52,31 @@ def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None):
 
 
     pass
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def parse_source_file(path):
+    """ Takes the source excel and loads it into a json format in a dict. 
+    
+        Returns the json-dict source excel and a dict of additional information for each sheet. The
+        additional information is also saved with its location (row, column).
+
+        Additional information: org, input_key_start.    
+    """
+
+    src_excel = excelWB_to_dict(path)
+    src_excel_rewrite = {}
+
+    additional_information = {}
+    add_info_map_to_excel_key = {'org': "salesforceorg",
+                                 'input_key_start': "inputkeys"} 
+    for sheet in src_excel.keys():
+        additional_information[sheet] = {}
+        for add_info_item in add_info_map_to_excel_key.keys():
+            additional_information[sheet][add_info_item] = \
+            get_additional_information(add_info_map_to_excel_key[add_info_item], src_excel[sheet])
+
+    return src_excel, additional_information
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
@@ -144,16 +97,33 @@ def get_additional_information(add_info_key, df, max_num_of_add_fields=100):
 
         param :: add_info_key   indicates which additional information to get. 
                                 Selects the data in the same row, but next column.  
-                                
+
+        Returns a tuple of its value and location in the form: (value, (row, column)).
+
         Returns None if the the row with key 'Input Keys' is reached, or if the number of addtional fields
-        is greater than max_num_of_add_fields.                         
+        is greater than max_num_of_add_fields.         
+
+        Can possibly be made faster using pandas filters.                
     """
     
     end_of_add_info_key = 'Input Keys'
     for row in range(0, max_num_of_add_fields):
-        if df.iloc[row,0].replace(" ", "").lower() == add_info_key:
-            return df.iloc[row,1]
-        elif df.iloc[row,0] == end_of_add_info_key:
-            return None
+        try:
+            if df.iloc[row,0].replace(" ", "").lower() == add_info_key:
+                return (df.iloc[row,1], (row,1))
+            elif df.iloc[row,0] == end_of_add_info_key:
+                return None
+        except AttributeError as e:
+            # accounts for nan
+            pass
+
     return None
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def is_id(value):
+    """ Checks if the value can possibly be a SalesForce id. Returns a bool. 
+    """
+    pass
+
 # ---------------------------------------------------------------------------------------------------------
