@@ -1,6 +1,7 @@
 import logging
 import os
 import pandas as pd
+import json
 
 from .salesforce import ComplexSF
 
@@ -12,7 +13,7 @@ def match_ids(obj, src_org, dst_org, id=None):
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None):
+def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None, env_vars=None):
     """ Takes id(s) and maps it from its current org to another org. The current state of org ids are 
         loaded from the current excel files in the cache/ORG_NAME folder. 
 
@@ -40,18 +41,20 @@ def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None):
         
     """
 
+    __logger.info("Parsing source file ")
     src_file, additional_information = parse_source_file(os.path.join(os.getcwd(), f"{src_exl}"))
+    
+    __logger.info("Loading mappings ")
+    id_org_mapper_relative_path = env_vars("id_org_mapper_relative_path").replace("/", os.sep)
+    id_obj_mappings = load_id_obj_mappings(os.path.join(os.getcwd(), id_org_mapper_relative_path))
 
-    dst_org_excel_path = os.path.join(os.getcwd(), 'cache', dst_org, f"{obj}.xlsx")
-    dst_org_excel = pd.read_excel(dst_org_excel_path)
+    # __logger.info("")
+    # dst_org_excel_path = os.path.join(os.getcwd(), 'cache', dst_org, f"{obj}.xlsx")
+    # dst_org_excel = pd.read_excel(dst_org_excel_path)
 
-    src_org_excel_path = os.path.join(os.getcwd(), 'cache', src_org, f"{obj}.xlsx")
-    src_org_excel = pd.read_excel(src_org_excel_path)
+    # src_org_excel_path = os.path.join(os.getcwd(), 'cache', src_org, f"{obj}.xlsx")
+    # src_org_excel = pd.read_excel(src_org_excel_path)
 
-
-
-
-    pass
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
@@ -118,6 +121,13 @@ def get_additional_information(add_info_key, df, max_num_of_add_fields=100):
             pass
 
     return None
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def load_id_obj_mappings(path):
+    with open(path, 'r') as stream:
+        mappings = json.load(stream)
+    return mappings
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------

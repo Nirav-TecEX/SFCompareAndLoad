@@ -4,11 +4,12 @@ import pandas as pd
 import json
 
 from .salesforce import ComplexSF
+from configs.config_checker import create_config
 
 __logger = logging.getLogger("matcher").getChild(__name__)
 
 # ---------------------------------------------------------------------------------------------------------
-def update_cache(user_config, dict_of_query_strs=None):
+def update_cache(user_config, dict_of_query_strs=None, env_vars=None):
     """ This function should check the necessary destination and source orgs and update the required 
         files as needed. It will update if the last update was not performed within the last 7 days. 
 
@@ -32,6 +33,9 @@ def update_cache(user_config, dict_of_query_strs=None):
                    user_config['details']['username'],
                    user_config['details']['password'],
                    user_config['details']['token']) # sandbox=user_config['dst_env']
+
+    if not sf.environment:
+        update_id_to_obj_mapper(sf, env_vars("id_org_mapper_relative_path").replace("/", os.sep))
 
     for obj_key in dict_of_query_strs:
         records = sf.perform_query(dict_of_query_strs[obj_key])
@@ -97,4 +101,18 @@ def save_records_to_json(records, obj, dst_env, sfObj: ComplexSF):
     __logger.debug(f"Saving to: {json_path} ")
     with open(json_path, 'w+') as outstream:
         outstream.write(json.dumps(records, indent = 4))
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def update_id_to_obj_mapper(sf: ComplexSF, saving_path):
+    __logger.info("Updating mapper which maps Ids to Objects. ")
+    
+    all_objects = sf.describe()['sobjects']
+    prefix_dict = {all_objects[i]['keyPrefix'] : all_objects[i]['name'] for i in range(len(all_objects))}
+
+    prefix_out_path = os.path.join(os.getcwd(), saving_path) 
+    __logger.info(f"Saving to {prefix_out_path}")
+    # create_config(prefix_out_path, dict_to_write=prefix_dict)
+    with open(prefix_out_path, 'w+') as outstream:
+        outstream.write(json.dumps(prefix_dict, indent = 4))
 # ---------------------------------------------------------------------------------------------------------

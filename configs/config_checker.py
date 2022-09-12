@@ -17,18 +17,22 @@ def check_configs_exist():
         __logger.info(f"Checking configs\{obj}.ini")
         config_fp = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
         if not os.path.exists(config_fp):
-            non_existing_configs.append(f"configs//{obj}.ini")
+            # non_existing_configs.append(f"configs//{obj}.ini")
+            non_existing_configs.append(os.path.join(os.getcwd(), 'configs', f'{obj}.ini'))
             create_config(config_fp)
             
     return non_existing_configs
 #-----------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------
-def create_config(path):
+def create_config(path, dict_to_write=None):
     config_writer = configparser.ConfigParser()
     config_writer.optionxform = str
-    config_writer['DEFAULT'] = {"Minimum_Fields": "Example,Fields", "Additional_Fields": "More,Examples"}
-    with open(path, 'w') as configfile:
+    if not dict_to_write:
+        config_writer['DEFAULT'] = {"Minimum_Fields": "Example,Fields", "Additional_Fields": "More,Examples"}
+    else:
+        config_writer['DEFAULT'] = dict_to_write
+    with open(path, 'w+') as configfile:
         config_writer.write(configfile)
 #-----------------------------------------------------------------------------------------------------------
 

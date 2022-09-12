@@ -53,10 +53,11 @@ def main():
     # creates the query str and then updates cache.    
     # this update cache uses data from the user.ini and updates for all necessary orgs and objects. 
     # Can add a check time last updated to prevent always updating 
-    # update_cache(user_config, dict_of_query_strs=None)
+    update_cache(user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
 
     # --------- P4 --------------------------------------------------
-    match_strings(os.path.join(os.getcwd(), "TestSheet1.xlsx"), user_config['dst_env'])
+    match_strings(os.path.join(os.getcwd(), "TestSheet1.xlsx"), 
+                  user_config['dst_env'], env_vars=__ENVDATA__)
 
     # --------- END -------------------------------------------------
     end_time = datetime.now()
@@ -66,4 +67,7 @@ def main():
 if __name__ == "__main__":
     print("------ RUNNING FROM main.py ------")
 
-    main()
+    try:
+        main()
+    except Exception as e:
+        __logger.debug(f"Error during process:\n{e}")
