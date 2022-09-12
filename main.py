@@ -10,10 +10,12 @@ which org to try and find a matching string from.
 from decouple import config
 import logging
 import os
+from datetime import datetime
 
 from setup.load_setup import load_setup
 from matcher.setup import configs_correct, get_access_variables, create_query_strs
-from matcher.match import update_cache
+from matcher.updater import update_cache
+from matcher.match import match_ids, match_strings
 from configs.config_checker import get_user_configs
 
 __ENVDATA__ = config
@@ -22,8 +24,10 @@ load_setup(__ENVDATA__("CHECK_FOLDERS"),
 
 __logger = logging.getLogger("main")
 
-#----------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
 def main():
+    start_time = datetime.now()
+
     # --------- P1 --------------------------------------------------
     if not configs_correct():
         return 1
@@ -46,19 +50,18 @@ def main():
             os.mkdir(path)
 
     # --------- P3 --------------------------------------------------
-    __logger.info(f"Creating queries ... ")
-    dict_of_query_strs = create_query_strs(user_config['obj_list'])
-    print("Queries:")
-    for key in dict_of_query_strs:
-        print(f"\t {dict_of_query_strs[key]}")
-    
-    # --------- P4 --------------------------------------------------
-    # this update cache uses data from the user.ini and updates for all
-    # necessary orgs and objects. Can add a check time last updated to
-    # prevent always updating 
-    update_cache(user_config, dict_of_query_strs)
+    # creates the query str and then updates cache.    
+    # this update cache uses data from the user.ini and updates for all necessary orgs and objects. 
+    # Can add a check time last updated to prevent always updating 
+    update_cache(user_config, dict_of_query_strs=None)
 
-#----------------------------------------------------------------------------
+    # --------- P4 --------------------------------------------------
+    match_strings(os.path.join(os.getcwd(), "TestSheet1.xlsx"), user_config['dst_env'])
+
+    # --------- END -------------------------------------------------
+    end_time = datetime.now()
+    __logger.info(f"Process is complete. Total Time: {end_time-start_time}")
+# ---------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     print("------ RUNNING FROM main.py ------")

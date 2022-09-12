@@ -20,7 +20,7 @@ class ComplexSF(sf.Salesforce):
                          security_token=self.__token,
                          domain=self.environment)
 
-    def perform_query(self, obj, query_str, dst_env):
+    def perform_query(self, query_str):
         response = self.query_all(query_str)
         if response['totalSize'] < 1:
             print(f"No records that match query: {query_str}")
