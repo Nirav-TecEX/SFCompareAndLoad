@@ -3,8 +3,6 @@ Module to make accessing, adding and changing data on salesforce easier.
 """
 
 import simple_salesforce as sf
-import os
-import pandas as pd
 
 class ComplexSF(sf.Salesforce):
     def __init__(self, environment, username, password, token, sandbox=None):
