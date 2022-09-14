@@ -1,9 +1,11 @@
+from difflib import Match
 import logging
 import os
 import pandas as pd
 import json
 
 from .salesforce import ComplexSF
+from .matcher_class import Matcher
 
 __logger = logging.getLogger("matcher").getChild(__name__)
 
@@ -13,7 +15,7 @@ def match_ids(obj, src_org, dst_org, id=None):
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None, env_vars=None):
+def match_strings(src_file, src_additional_info, dst_org='tecex--ruleseng', obj=None, id=None, env_vars=None):
     """ Takes id(s) and maps it from its current org to another org. The current state of org ids are 
         loaded from the current excel files in the cache/ORG_NAME folder. 
 
@@ -41,20 +43,25 @@ def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None, env_vars=No
         
     """
 
-    __logger.info("Parsing source file ")
-    # src_file, additional_information = parse_source_file(os.path.join(os.getcwd(), f"{src_exl}"))
-    src_file, additional_information = parse_source_file(src_exl)
+    mappings_folder = os.path.join(os.getcwd(), env_vars("id_org_mapper_relative_path").replace("/", os.sep))
+    dst_path = os.path.join(os.getcwd(), "cache", f"{dst_org}")
+    __logger.info(f"Using destination data from: {dst_path}")
     
-    __logger.info("Loading mappings ")
-    id_org_mapper_relative_path = env_vars("id_org_mapper_relative_path").replace("/", os.sep)
-    id_obj_mappings = load_id_obj_mappings(os.path.join(os.getcwd(), id_org_mapper_relative_path))
+    matcher_class = Matcher()
+    
+    for sheet in src_file.keys():
+        group_org_name = src_additional_info[sheet]['org'][0].split("--")[0]
+        matcher_class.update_mappers(group_org_name, mappings_folder)
 
-    # __logger.info("")
+        # src_path = os.path.join(os.getcwd(), 'cache', src_org)
+        # __logger.info(f"Using src data from: {src_org}")
+
     # dst_org_excel_path = os.path.join(os.getcwd(), 'cache', dst_org, f"{obj}.xlsx")
     # dst_org_excel = pd.read_excel(dst_org_excel_path)
 
     # src_org_excel_path = os.path.join(os.getcwd(), 'cache', src_org, f"{obj}.xlsx")
     # src_org_excel = pd.read_excel(src_org_excel_path)
+    return 0
 
 # ---------------------------------------------------------------------------------------------------------
 
@@ -124,13 +131,6 @@ def get_additional_information(add_info_key, df, max_num_of_add_fields=100):
             pass
 
     return None
-# ---------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------
-def load_id_obj_mappings(path):
-    with open(path, 'r') as stream:
-        mappings = json.load(stream)
-    return mappings
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------

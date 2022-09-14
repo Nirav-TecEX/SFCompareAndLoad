@@ -13,6 +13,10 @@ def update_cache(org_type, user_config, dict_of_query_strs=None, env_vars=None):
     """ This function should check the necessary destination and source orgs and update the required 
         files as needed. It will update if the last update was not performed within the last 7 days. 
 
+        This function calls the 'create_query_strs' function in order to create the query for SalesForce
+        and the matching string using data from the configs. It then saves the output/ updates to the 
+        cache.  
+
         param :: org_type             accepts either 'src' or 'dst'
         param :: user_config          takes the data read from the user_config to know which orgs to check 
                                       for recently updated time.
@@ -43,6 +47,7 @@ def update_cache(org_type, user_config, dict_of_query_strs=None, env_vars=None):
         update_id_to_obj_mapper(sf, env_vars("id_org_mapper_relative_path").replace("/", os.sep))
 
     for obj_key in dict_of_query_strs:
+        __logger.debug("Performing")
         records = sf.perform_query(dict_of_query_strs[obj_key])
         __logger.debug(f"Creating match string for {obj_key}")
         records_with_match_str = create_match_string(records, obj_key)

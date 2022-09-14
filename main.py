@@ -52,6 +52,8 @@ def main(excel_name=None):
         __logger.debug(e)
         return 2
     
+    # --------- P4 --------------------------------------------------
+    __logger.info("Checking folder structures ...") 
     path = os.path.join(os.getcwd(), 'cache', f"{user_config['dst_env']}")
     if not os.path.exists(path):
         os.mkdir(path)
@@ -60,20 +62,23 @@ def main(excel_name=None):
         if not os.path.exists(path):
             os.mkdir(path)
 
-    # --------- P3 --------------------------------------------------
+    # --------- P5 --------------------------------------------------
     # creates the query str and then updates cache.    
     # this update cache uses data from the user.ini and updates for all necessary orgs and objects. 
     # Can add a check time last updated to prevent always updating 
+    __logger.info("Updating caches ... ") 
     update_cache('dst', user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
     update_cache('src', user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
 
-    # --------- P4 --------------------------------------------------
+    # --------- P6 --------------------------------------------------
+    __logger.info("Accessing & Parsing data ... ") 
     if not user_config['src_details']:
         __logger.info("Parsing source file ")
         src_file, src_additional_info = parse_source_file(excel_name)
 
-    match_strings(os.path.join(os.getcwd(), "TestSheet1.xlsx"), 
-                  user_config['dst_env'], env_vars=__ENVDATA__)
+    # --------- P7 --------------------------------------------------
+    __logger.info("Searching for matches ... ") 
+    match_strings(src_file, src_additional_info, env_vars=__ENVDATA__)
 
     # --------- END -------------------------------------------------
     end_time = datetime.now()

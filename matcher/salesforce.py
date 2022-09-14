@@ -24,7 +24,6 @@ class ComplexSF(sf.Salesforce):
             print(f"No records that match query: {query_str}")
             return None
         else:
-            print("Saving list of of records. ")
             records = response['records']
             sorted_records = sorted(records, key=lambda record: record['Id'])
             return sorted_records    
