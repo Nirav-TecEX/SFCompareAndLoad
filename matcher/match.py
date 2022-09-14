@@ -47,20 +47,34 @@ def match_strings(src_file, src_additional_info, dst_org='tecex--ruleseng', obj=
     dst_path = os.path.join(os.getcwd(), "cache", f"{dst_org}")
     __logger.info(f"Using destination data from: {dst_path}")
     
-    matcher_class = Matcher()
+    matcher_class = Matcher(src_file, src_additional_info)
     
-    for sheet in src_file.keys():
-        group_org_name = src_additional_info[sheet]['org'][0].split("--")[0]
+    for sheet in matcher_class.src_file.keys():
+        src_org = matcher_class.src_additional_info[sheet]['org'][0]
+        group_org_name = src_org.split("--")[0]
         matcher_class.update_mappers(group_org_name, mappings_folder)
+        # at this point, i have the mapper for the group org- like tecex, zee or medical
+        # which will allow me to take an id and match it to its object type
+        # I would now go through each id in the excel and:
+        #   1) see which object type it is
+        #   2) go to the SRC ORG and load the OBJ datasheet (load in the class)
+        #          -> if it is not present
+        #   3) use the id to get the objs matching string
+        #   4) go to the DST ORG and load the OBJ datasheet (load in the class)
+        #          -> if it is not present
+        #   5) use the matching string to find it corresponding id
+        #   6) update excel dict
+        #   7) write to new excel 
 
-        # src_path = os.path.join(os.getcwd(), 'cache', src_org)
-        # __logger.info(f"Using src data from: {src_org}")
+        # --- Done for each id in sheet ---
+        # 1
+        object_name = matcher_class.search_for_object()
 
-    # dst_org_excel_path = os.path.join(os.getcwd(), 'cache', dst_org, f"{obj}.xlsx")
-    # dst_org_excel = pd.read_excel(dst_org_excel_path)
+        # 2 & 4
+        if matcher_class.check_loaded_orgs_and_objects(object_name, src_org, dst_org):
+            # 3 & 5
+            matcher_class.get_dst_id(id, object_name, src_org, dst_org)
 
-    # src_org_excel_path = os.path.join(os.getcwd(), 'cache', src_org, f"{obj}.xlsx")
-    # src_org_excel = pd.read_excel(src_org_excel_path)
     return 0
 
 # ---------------------------------------------------------------------------------------------------------
