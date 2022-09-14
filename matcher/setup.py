@@ -24,10 +24,45 @@ def configs_correct():
 def get_access_variables(user_config, __envdata__):
     """ Creates the user's config and the selects which user to perform
         updates with. """
-    access_str = ''
     
-    dest_org = user_config['dst_env']
+
+    user_config = get_details('dst_env', user_config, __envdata__)
+    user_config = get_details('src_env', user_config, __envdata__)        
+    # access_str = ''
+    # dest_org = user_config['dst_env']
+    # org = dest_org.split('--')[1]
+    # if 'tec' in dest_org:
+    #     access_str = access_str + 'tec_'
+    # elif 'zee' in dest_org:
+    #     access_str = access_str + 'zee_'
+    # elif 'med' in dest_org:
+    #     access_str = access_str + 'med_' 
+
+    # if not 'prod' in org:
+    #     access_str = access_str + org + "_"
+    
+    # user_config['details'] = \
+    # {'username': __envdata__(f'{access_str}Username'),
+    #  'password': __envdata__(f'{access_str}Password'),
+    #  'token': __envdata__(f'{access_str}Token')}
+
+    return user_config
+    
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def get_details(org_env, user_config, __envdata__):
+    """ Attempts to get the details for the org_env defined. Usually used to get the details for the 
+        destination and source orgs. 
+    """
+    org_type = org_env.split("_")[0]
+    access_str = ''
+    dest_org = user_config[org_env]
+    if dest_org == 'excel':
+        user_config[f'{org_type}_details'] = None
+        return user_config
     org = dest_org.split('--')[1]
+    
     if 'tec' in dest_org:
         access_str = access_str + 'tec_'
     elif 'zee' in dest_org:
@@ -37,17 +72,11 @@ def get_access_variables(user_config, __envdata__):
 
     if not 'prod' in org:
         access_str = access_str + org + "_"
-    # if_stage = ''
-    # env = user_config['org_env']
-    # if not 'prod' in env:
-    #     access_str = access_str + 'Stage'
-    #     if_stage = '_'
     
-    user_config['details'] = \
+    user_config[f'{org_type}_details'] = \
     {'username': __envdata__(f'{access_str}Username'),
      'password': __envdata__(f'{access_str}Password'),
      'token': __envdata__(f'{access_str}Token')}
 
     return user_config
-    
 # ---------------------------------------------------------------------------------------------------------
