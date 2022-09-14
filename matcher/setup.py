@@ -23,28 +23,11 @@ def configs_correct():
 # ---------------------------------------------------------------------------------------------------------
 def get_access_variables(user_config, __envdata__):
     """ Creates the user's config and the selects which user to perform
-        updates with. """
-    
+        updates with. 
+    """
 
     user_config = get_details('dst_env', user_config, __envdata__)
     user_config = get_details('src_env', user_config, __envdata__)        
-    # access_str = ''
-    # dest_org = user_config['dst_env']
-    # org = dest_org.split('--')[1]
-    # if 'tec' in dest_org:
-    #     access_str = access_str + 'tec_'
-    # elif 'zee' in dest_org:
-    #     access_str = access_str + 'zee_'
-    # elif 'med' in dest_org:
-    #     access_str = access_str + 'med_' 
-
-    # if not 'prod' in org:
-    #     access_str = access_str + org + "_"
-    
-    # user_config['details'] = \
-    # {'username': __envdata__(f'{access_str}Username'),
-    #  'password': __envdata__(f'{access_str}Password'),
-    #  'token': __envdata__(f'{access_str}Token')}
 
     return user_config
     

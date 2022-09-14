@@ -15,7 +15,7 @@ from datetime import datetime
 from setup.load_setup import load_setup
 from matcher.setup import configs_correct, get_access_variables
 from matcher.updater import update_cache
-from matcher.match import match_ids, match_strings
+from matcher.match import match_ids, match_strings, parse_source_file
 from configs.config_checker import get_user_configs
 
 __ENVDATA__ = config
@@ -25,9 +25,20 @@ load_setup(__ENVDATA__("CHECK_FOLDERS"),
 __logger = logging.getLogger("main")
 
 # ---------------------------------------------------------------------------------------------------------
-def main():
+def load_debug_vars():
+    test_excel_name = os.path.join(os.getcwd(), "TestSheet1.xlsx")
+
+    return test_excel_name
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def main(excel_name=None):
     start_time = datetime.now()
 
+    if 'true' in __ENVDATA__("DEBUG_MODE").lower():
+        print("\t\n< Starting in DEBUG MODE >\n")
+        excel_name = load_debug_vars()
+    
     # --------- P1 --------------------------------------------------
     if not configs_correct():
         return 1
@@ -57,6 +68,10 @@ def main():
     update_cache('src', user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
 
     # --------- P4 --------------------------------------------------
+    if not user_config['src_details']:
+        __logger.info("Parsing source file ")
+        src_file, src_additional_info = parse_source_file(excel_name)
+
     match_strings(os.path.join(os.getcwd(), "TestSheet1.xlsx"), 
                   user_config['dst_env'], env_vars=__ENVDATA__)
 

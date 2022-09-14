@@ -42,7 +42,8 @@ def match_strings(src_exl, dst_org='tecex--prod', obj=None, id=None, env_vars=No
     """
 
     __logger.info("Parsing source file ")
-    src_file, additional_information = parse_source_file(os.path.join(os.getcwd(), f"{src_exl}"))
+    # src_file, additional_information = parse_source_file(os.path.join(os.getcwd(), f"{src_exl}"))
+    src_file, additional_information = parse_source_file(src_exl)
     
     __logger.info("Loading mappings ")
     id_org_mapper_relative_path = env_vars("id_org_mapper_relative_path").replace("/", os.sep)
@@ -64,7 +65,9 @@ def parse_source_file(path):
         Returns the json-dict source excel and a dict of additional information for each sheet. The
         additional information is also saved with its location (row, column).
 
-        Additional information: org, input_key_start.    
+        Additional information: org, input_key_start.  
+
+        *** See function 'match_strings' for explanation on required excel layout.  
     """
 
     src_excel = excelWB_to_dict(path)
