@@ -56,6 +56,9 @@ def match_strings(src_file, src_additional_info, dst_org='tecex--prod', obj=None
     
     for sheet in matching_obj.src_file.keys():
         src_org = matching_obj.src_additional_info[sheet]['org'][0]
+        input_key_row_col = src_additional_info[sheet]['input_key_start'][1]
+        new_sheet = src_file[sheet][input_key_row_col[0]:]
+        new_sheet.columns = new_sheet.iloc[0]
         group_org_name = src_org.split("--")[0]
         matching_obj.update_mappers(group_org_name, mappings_folder)
         # at this point, i have the mapper for the group org- like tecex, zee or medical
@@ -74,26 +77,31 @@ def match_strings(src_file, src_additional_info, dst_org='tecex--prod', obj=None
 
 
         # --- Done for each id in sheet ---
-        # 1
-        if debug_mode:
-            object_name = 'CPA_v2_0__c'
-            id = "a26070000008Qy1AAE"
-        else:
-            object_name = matching_obj.get_object_type(id, group_org_name)
+        # for row in 
+        for row_index in range(0, len(new_sheet)):
+            id = new_sheet.iloc[row_index]['Input Key Value']
+            
+            if is_id(id):
+                # 1
+                if debug_mode:
+                    object_name = 'CPA_v2_0__c'
+                    id = "a26070000008Qy1AAE"
+                else:
+                    object_name = matching_obj.get_object_type(id, group_org_name)
 
-        # checking if the datasheets for the objects from the source and desitnation orgs are loaded
-    
-        matching_obj.check_loaded_orgs_and_objects(dst_org, object_name)
-        matching_obj.check_loaded_orgs_and_objects(src_org, object_name, type='src')
+                # checking if the datasheets for the objects from the source and desitnation orgs are loaded
+            
+                matching_obj.check_loaded_orgs_and_objects(dst_org, object_name)
+                matching_obj.check_loaded_orgs_and_objects(src_org, object_name, type='src')
 
-        obj_matching_string = matching_obj.get_src_match_string(id, src_org, object_name)
-        
-        if isinstance(obj_matching_string, int):
-            return 1
-        
-        new_id = matching_obj.match_id_to_dst_org(obj_matching_string, dst_org, object_name)
-        if debug_mode:
-            new_id = "UPDATED - " + new_id
+                obj_matching_string = matching_obj.get_src_match_string(id, src_org, object_name)
+                
+                if isinstance(obj_matching_string, int):
+                    return 1
+                
+                new_id = matching_obj.match_id_to_dst_org(obj_matching_string, dst_org, object_name)
+                if debug_mode:
+                    new_id = "UPDATED - " + new_id
 
     return 0
 
@@ -168,7 +176,7 @@ def get_additional_information(add_info_key, df, max_num_of_add_fields=100):
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def is_id(value):
+def is_id(id):
     """ Checks if the value can possibly be a SalesForce id. Returns a bool. 
     """
     pass
