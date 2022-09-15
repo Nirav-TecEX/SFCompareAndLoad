@@ -1,6 +1,7 @@
 import logging
 import json
 import os
+import pandas as pd
 
 class Matcher:
     def __init__(self, src_file, src_additional_info):
@@ -40,33 +41,59 @@ class Matcher:
         self.logger.debug(f"Mappings loaded from {path}")
         return mappings
 
-    def search_for_object(self, id, org_name):
-        # use the id (1st 3 letters) & org_name to get id
-        pass
+    def get_object_type(self, id, group_org_name):
+        id_classifier = id[0:3]
+        return self.id_obj_mappings[group_org_name][id_classifier]
 
-    def check_loaded_orgs_and_objects(self, group_org_name, object_name, type):
+    def check_loaded_orgs_and_objects(self, org_name, object_name, type='dst'):
         is_loaded = {'org': False, 'object': False}
         obj_to_check = eval(f"self.loaded_{type}_objs")
-        is_loaded['org'] = group_org_name in obj_to_check.keys() 
+        is_loaded['org'] = org_name in obj_to_check.keys() 
 
         try:
-            is_loaded['object'] = object_name in obj_to_check[group_org_name].keys()
+            is_loaded['object'] = object_name in obj_to_check[org_name].keys()
         except KeyError as e:
-            self.logger.debug(f"Group org '{group_org_name}' and obj '{object_name}' not present.")
+            self.logger.debug(f"Group org '{org_name}' and obj '{object_name}' not present.")
             is_loaded['object'] = False
-  
+
+        if not is_loaded['org'] and not is_loaded['object']:
+            obj_to_check[org_name] = {}
+            obj_to_check[org_name] = self.__load_obj_data(org_name, object_name)
+        elif not is_loaded['object']:
+            obj_to_check[org_name] = self.__load_obj_data(org_name, object_name)
+
+    def __load_obj_data(self, org_name, object_name):
+        excel_path = os.path.join(os.getcwd(), "cache", org_name, f"{object_name}.xlsx")
+        data = {}
+        obj_excel_file = pd.ExcelFile(excel_path)
+        sheet = pd.read_excel(obj_excel_file)
+        data[object_name] = sheet
+        return data
+    
+    def get_src_match_string(self, id, src_org, object_name):
+        # load the obj dict and get string from matching 
+        obj_data = self.loaded_src_objs[src_org][object_name]
+        matching_string = obj_data[obj_data["Id"] == id]
+        if len(matching_string) == 1:
+            return matching_string.loc[matching_string.index[0], "Matching String"]
+        else:
+            return 1
+    
+    def match_id_to_dst_org(self, matching_string, dst_org, object_name):
+        obj_data = self.loaded_dst_objs[dst_org][object_name]
+        new_id = obj_data[obj_data["Matching String"] == matching_string]
+        if len(new_id) == 1:
+            return new_id.loc[new_id.index[0], "Id"]
+        elif len(new_id) > 1:
+            # add fields to matching string
+            return 1
+        else:
+            return 2
+    
     def update_data(self, type: str, data: dict):
         for key in data.keys():
             self.logger.debug(f"Updating {key} for {type}")
             if type == 'dst':
                 self.__loaded_dst_objs[key] = data[key]
             elif type == 'src':
-                self.loaded_src_objs[key] = data[key]
-    
-    def get_dst_id(self, id, object_name, src_org, dst_org):
-        # use the object_name, src_org, dst_org to filter the loaded data
-        # use the id to get matching string from src_objs then use that 
-        # to match to dst_org and get dst_id.
-        pass
-
-    
+                self.loaded_src_objs[key] = data[key]    

@@ -7,6 +7,7 @@ For now all of the data comes from an excel spreadsheet. The user defines
 which org to try and find a matching string from. 
 """
 
+from distutils.log import debug
 from decouple import config
 import logging
 import os
@@ -34,8 +35,9 @@ def load_debug_vars():
 # ---------------------------------------------------------------------------------------------------------
 def main(excel_name=None):
     start_time = datetime.now()
-
-    if 'true' in __ENVDATA__("DEBUG_MODE").lower():
+    debug_mode = 'true' in __ENVDATA__("DEBUG_MODE").lower()
+    
+    if debug_mode:
         print("\t\n< Starting in DEBUG MODE >\n")
         excel_name = load_debug_vars()
     
@@ -78,7 +80,7 @@ def main(excel_name=None):
 
     # --------- P7 --------------------------------------------------
     __logger.info("Searching for matches ... ") 
-    match_strings(src_file, src_additional_info, env_vars=__ENVDATA__)
+    match_strings(src_file, src_additional_info, env_vars=__ENVDATA__, debug_mode=debug_mode)
 
     # --------- END -------------------------------------------------
     end_time = datetime.now()

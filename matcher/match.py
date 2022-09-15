@@ -10,12 +10,17 @@ from .matcher_class import Matcher
 __logger = logging.getLogger("matcher").getChild(__name__)
 
 # ---------------------------------------------------------------------------------------------------------
+def load_match_string_debug_vars():
+    pass
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
 def match_ids(obj, src_org, dst_org, id=None):
     match_strings(obj, src_org, dst_org, id)
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def match_strings(src_file, src_additional_info, dst_org='tecex--ruleseng', obj=None, id=None, env_vars=None):
+def match_strings(src_file, src_additional_info, dst_org='tecex--prod', obj=None, id=None, env_vars=None, debug_mode=False):
     """ Takes id(s) and maps it from its current org to another org. The current state of org ids are 
         loaded from the current excel files in the cache/ORG_NAME folder. 
 
@@ -47,12 +52,12 @@ def match_strings(src_file, src_additional_info, dst_org='tecex--ruleseng', obj=
     dst_path = os.path.join(os.getcwd(), "cache", f"{dst_org}")
     __logger.info(f"Using destination data from: {dst_path}")
     
-    matcher_class = Matcher(src_file, src_additional_info)
+    matching_obj = Matcher(src_file, src_additional_info)
     
-    for sheet in matcher_class.src_file.keys():
-        src_org = matcher_class.src_additional_info[sheet]['org'][0]
+    for sheet in matching_obj.src_file.keys():
+        src_org = matching_obj.src_additional_info[sheet]['org'][0]
         group_org_name = src_org.split("--")[0]
-        matcher_class.update_mappers(group_org_name, mappings_folder)
+        matching_obj.update_mappers(group_org_name, mappings_folder)
         # at this point, i have the mapper for the group org- like tecex, zee or medical
         # which will allow me to take an id and match it to its object type
         # I would now go through each id in the excel and:
@@ -66,14 +71,29 @@ def match_strings(src_file, src_additional_info, dst_org='tecex--ruleseng', obj=
         #   6) update excel dict
         #   7) write to new excel 
 
+
+
         # --- Done for each id in sheet ---
         # 1
-        object_name = matcher_class.search_for_object()
+        if debug_mode:
+            object_name = 'CPA_v2_0__c'
+            id = "a26070000008Qy1AAE"
+        else:
+            object_name = matching_obj.get_object_type(id, group_org_name)
 
-        # 2 & 4
-        if matcher_class.check_loaded_orgs_and_objects(object_name, src_org, dst_org):
-            # 3 & 5
-            matcher_class.get_dst_id(id, object_name, src_org, dst_org)
+        # checking if the datasheets for the objects from the source and desitnation orgs are loaded
+    
+        matching_obj.check_loaded_orgs_and_objects(dst_org, object_name)
+        matching_obj.check_loaded_orgs_and_objects(src_org, object_name, type='src')
+
+        obj_matching_string = matching_obj.get_src_match_string(id, src_org, object_name)
+        
+        if isinstance(obj_matching_string, int):
+            return 1
+        
+        new_id = matching_obj.match_id_to_dst_org(obj_matching_string, dst_org, object_name)
+        if debug_mode:
+            new_id = "UPDATED - " + new_id
 
     return 0
 
