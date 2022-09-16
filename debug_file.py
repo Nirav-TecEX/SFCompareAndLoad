@@ -1,0 +1,5 @@
+from configs.config_checker import check_obj_file_configs_exists
+from matcher.setup import create_configs_missing_file
+
+create_configs_missing_file()
+check_obj_file_configs_exists('test')

@@ -17,12 +17,14 @@ from matcher.setup import configs_correct, get_access_variables
 from matcher.updater import update_cache
 from matcher.match import match_strings, parse_source_file
 from configs.config_checker import get_user_configs
+from matcher.setup import create_configs_missing_file
 
 __ENVDATA__ = config
 load_setup(__ENVDATA__("CHECK_FOLDERS"),
            __ENVDATA__("LOAD_LOGGERS"))
 
 __logger = logging.getLogger("main")
+create_configs_missing_file()
 
 # ---------------------------------------------------------------------------------------------------------
 def load_debug_vars():
@@ -41,6 +43,7 @@ def main(excel_name=None):
         excel_name = load_debug_vars()
     
     # --------- P1 --------------------------------------------------
+    # moved to within matching
     if not configs_correct():
         return 1
     
@@ -81,7 +84,11 @@ def main(excel_name=None):
 
     # --------- P7 --------------------------------------------------
     __logger.info("Searching for matches ... ") 
-    match_strings(src_file, src_additional_info, env_vars=__ENVDATA__, debug_mode=debug_mode)
+    match_strings(src_file, 
+                  src_additional_info, 
+                  user_config=user_config, 
+                  env_vars=__ENVDATA__, 
+                  debug_mode=debug_mode)
 
     # --------- END -------------------------------------------------
     end_time = datetime.now()
@@ -90,8 +97,8 @@ def main(excel_name=None):
 
 if __name__ == "__main__":
     print("------ RUNNING FROM main.py ------")
-    # test new branch
+
     try:
         main()
     except Exception as e:
-        __logger.debug(f"Error during process:\n{e}")
+        __logger.info(f"Error during process:\n{e}")

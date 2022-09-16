@@ -21,16 +21,12 @@
             "justMyCode": true
         },
         {
-            "name": "Django MGMT Command",
+            "name": "Python: debug_file.py",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\medex\\manage.py",
-            // "program": "manage.py",
+            "program": "${workspaceFolder}\\debug_file.py",
             "console": "integratedTerminal",
-            "args": [
-                "runserver",
-                "--noreload",
-            ]
-        },     
+            "justMyCode": true
+        }, 
     ]
 }

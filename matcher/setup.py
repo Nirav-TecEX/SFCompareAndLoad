@@ -1,4 +1,6 @@
 import logging
+import os
+
 from configs.config_checker import check_configs_exist 
 
 __setup_logger = logging.getLogger("main").getChild(__name__)
@@ -62,4 +64,10 @@ def get_details(org_env, user_config, __envdata__):
      'token': __envdata__(f'{access_str}Token')}
 
     return user_config
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def create_configs_missing_file():
+    with open(os.path.join(os.getcwd(), "CONFIGS_TO_ADD.txt"), 'w+') as f:
+        f.write("The names of config files that were incorrectly configured or not present are placed here. \n")
 # ---------------------------------------------------------------------------------------------------------

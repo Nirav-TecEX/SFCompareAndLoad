@@ -5,6 +5,8 @@ import json
 
 from .salesforce import ComplexSF
 from .matcher_class import Matcher
+from matcher.updater import update_single_obj_cache
+from configs. config_checker import get_obj_min_fields
 
 __logger = logging.getLogger("matcher").getChild(__name__)
 
@@ -14,7 +16,7 @@ def load_match_string_debug_vars():
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def match_strings(src_file, src_additional_info, dst_org='tecex--prod', obj=None, id=None, env_vars=None, debug_mode=False):
+def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ruleseng', env_vars=None, debug_mode=False):
     """ Takes id(s) and maps it from its current org to another org. The current state of org ids are 
         loaded from the current excel files in the cache/ORG_NAME folder. 
 
@@ -51,8 +53,6 @@ def match_strings(src_file, src_additional_info, dst_org='tecex--prod', obj=None
     for sheet in matching_obj.src_file.keys():
         src_org = matching_obj.src_additional_info[sheet]['org'][0]
         input_key_row = src_additional_info[sheet]['input_key_start'][1][0]
-        # new_sheet = src_file[sheet][input_key_row_col[0]:]
-        # new_sheet.columns = new_sheet.iloc[0]
         new_sheet = src_file[sheet]
         group_org_name = src_org.split("--")[0]
         matching_obj.update_mappers(group_org_name, mappings_folder)
@@ -86,7 +86,12 @@ def match_strings(src_file, src_additional_info, dst_org='tecex--prod', obj=None
                     object_name = matching_obj.get_object_type(id, group_org_name)
 
                 # checking if the datasheets for the objects from the source and desitnation orgs are loaded
-            
+                
+                # do this & perform update
+                user_config = get_obj_min_fields(object_name, user_config)
+                update_single_obj_cache('dst', dst_org, object_name, user_config, env_vars=env_vars)
+                update_single_obj_cache('src', src_org, object_name, user_config, env_vars=env_vars)
+
                 matching_obj.check_loaded_orgs_and_objects(dst_org, object_name)
                 matching_obj.check_loaded_orgs_and_objects(src_org, object_name, type='src')
 
