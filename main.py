@@ -7,7 +7,6 @@ For now all of the data comes from an excel spreadsheet. The user defines
 which org to try and find a matching string from. 
 """
 
-from distutils.log import debug
 from decouple import config
 import logging
 import os
@@ -16,7 +15,7 @@ from datetime import datetime
 from setup.load_setup import load_setup
 from matcher.setup import configs_correct, get_access_variables
 from matcher.updater import update_cache
-from matcher.match import match_ids, match_strings, parse_source_file
+from matcher.match import match_strings, parse_source_file
 from configs.config_checker import get_user_configs
 
 __ENVDATA__ = config
@@ -65,6 +64,8 @@ def main(excel_name=None):
             os.mkdir(path)
 
     # --------- P5 --------------------------------------------------
+    # MOVE THIS TO WITHIN PROCESS
+        # TOO MANY FILES AT ANY ONE TIME  IF A USER IS GOING TO USE IT
     # creates the query str and then updates cache.    
     # this update cache uses data from the user.ini and updates for all necessary orgs and objects. 
     # Can add a check time last updated to prevent always updating 

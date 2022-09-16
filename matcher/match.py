@@ -14,11 +14,6 @@ def load_match_string_debug_vars():
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def match_ids(obj, src_org, dst_org, id=None):
-    match_strings(obj, src_org, dst_org, id)
-# ---------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------
 def match_strings(src_file, src_additional_info, dst_org='tecex--prod', obj=None, id=None, env_vars=None, debug_mode=False):
     """ Takes id(s) and maps it from its current org to another org. The current state of org ids are 
         loaded from the current excel files in the cache/ORG_NAME folder. 
