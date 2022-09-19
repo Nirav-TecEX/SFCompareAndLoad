@@ -35,10 +35,11 @@ def get_obj_min_fields(obj_name, user_config):
         create_config(config_fp)
 
         with open(os.path.join(os.getcwd(), "CONFIGS_TO_ADD.txt"), 'a') as f:
+            f.write(f"{obj_name}")
             for configName in non_existing_configs:
-                f.write(configName+"\n")
-
-        return 1
+                f.write("\t"+configName+"\n")
+            f.write("\n")
+        return 0
     else:
         user_config['obj_list'][obj_name] = get_WHERE_fields_for_obj([obj_name])
 

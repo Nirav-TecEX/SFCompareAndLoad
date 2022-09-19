@@ -40,8 +40,7 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
         Imporvements:
         - First implementation: Reads 1 sheet, for data. Dummy orgs in a Dummy excel.  
         - Currently only reads 1 sheet- should cycle through
-        - Can pssibly be made faster with searching algorithms. 
-        
+        - Can pssibly be made faster with searching algorithms.         
     """
 
     mappings_folder = os.path.join(os.getcwd(), env_vars("id_org_mapper_relative_path").replace("/", os.sep))
@@ -53,7 +52,7 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
     for sheet in matching_obj.src_file.keys():
         src_org = matching_obj.src_additional_info[sheet]['org'][0]
         input_key_row = src_additional_info[sheet]['input_key_start'][1][0]
-        new_sheet = src_file[sheet]
+        cuurent_sheet = src_file[sheet]
         group_org_name = src_org.split("--")[0]
         matching_obj.update_mappers(group_org_name, mappings_folder)
         # at this point, i have the mapper for the group org- like tecex, zee or medical
@@ -73,17 +72,16 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
 
         # --- Done for each id in sheet ---
         # for row in 
-        for row_index in range(input_key_row, len(new_sheet)):
-            id = new_sheet.iloc[row_index, 1]
+        for row_index in range(input_key_row, len(cuurent_sheet)):
+            id = cuurent_sheet.iloc[row_index, 1]
             new_id = id
 
             if is_id(id):
-                # 1
                 if debug_mode:
-                    object_name = 'CPA_v2_0__c'
-                    id = "a26070000008Qy1AAE"
-                else:
-                    object_name = matching_obj.get_object_type(id, group_org_name)
+                    
+                    id = "a26070000008Qy1AAE" # object_name = 'CPA_v2_0__c'
+
+                object_name = matching_obj.get_object_type(id, group_org_name)
 
                 # checking if the datasheets for the objects from the source and desitnation orgs are loaded
                 
@@ -104,9 +102,9 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
                 if debug_mode:
                     new_id = "UPDATED - " + new_id
             
-            new_sheet.iloc[row_index, 1] = new_id
+            cuurent_sheet.iloc[row_index, 1] = new_id
         
-        src_file[sheet] = new_sheet 
+        src_file[sheet] = cuurent_sheet 
 
     # run src_file["Sheet1"][98:99]   
     if debug_mode:

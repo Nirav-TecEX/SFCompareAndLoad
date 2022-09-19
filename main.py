@@ -38,6 +38,7 @@ def main(excel_name=None):
     start_time = datetime.now()
     debug_mode = 'true' in __ENVDATA__("DEBUG_MODE").lower()
     
+    # --------- P0 --------------------------------------------------
     if debug_mode:
         print("\t\n< Starting in DEBUG MODE >\n")
         excel_name = load_debug_vars()
@@ -56,7 +57,7 @@ def main(excel_name=None):
         __logger.debug(e)
         return 2
     
-    # --------- P4 --------------------------------------------------
+    # --------- P3 --------------------------------------------------
     __logger.info("Checking folder structures ...") 
     path = os.path.join(os.getcwd(), 'cache', f"{user_config['dst_env']}")
     if not os.path.exists(path):
@@ -72,9 +73,9 @@ def main(excel_name=None):
     # creates the query str and then updates cache.    
     # this update cache uses data from the user.ini and updates for all necessary orgs and objects. 
     # Can add a check time last updated to prevent always updating 
-    __logger.info("Updating caches ... ") 
-    update_cache('dst', user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
-    update_cache('src', user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
+    # __logger.info("Updating caches ... ") 
+    # update_cache('dst', user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
+    # update_cache('src', user_config, dict_of_query_strs=None, env_vars=__ENVDATA__)
 
     # --------- P6 --------------------------------------------------
     __logger.info("Accessing & Parsing data ... ") 
@@ -83,12 +84,16 @@ def main(excel_name=None):
         src_file, src_additional_info = parse_source_file(excel_name)
 
     # --------- P7 --------------------------------------------------
-    __logger.info("Searching for matches ... ") 
-    match_strings(src_file, 
-                  src_additional_info, 
-                  user_config=user_config, 
-                  env_vars=__ENVDATA__, 
-                  debug_mode=debug_mode)
+    __logger.info("Searching for matches ... ")
+    try: 
+        response = match_strings(src_file, 
+                    src_additional_info, 
+                    user_config=user_config, 
+                    env_vars=__ENVDATA__, 
+                    debug_mode=debug_mode)
+    except Exception as e:
+        __logger.info("Error during match_strings. ")
+        __logger.debug(f"{e}")
 
     # --------- END -------------------------------------------------
     end_time = datetime.now()

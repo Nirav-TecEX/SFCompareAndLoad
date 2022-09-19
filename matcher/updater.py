@@ -4,6 +4,7 @@ import pandas as pd
 import json
 import time
 
+from .setup import update_details
 from .salesforce import ComplexSF
 from configs.config_checker import create_config
 
@@ -81,10 +82,16 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
         Still need to implement the timer checker. """
     
     obj_path = os.path.join(os.getcwd(), 'cache', org_name, f"{obj_name}.xlsx")
-    # if 604800 > time.time() - os.path.getmtime(obj_path): 
-    if 1 > time.time() - os.path.getmtime(obj_path): 
-        return
+    if 'true' in env_vars("DEBUG_MODE").lower(): 
+        update_time = 1
+    else:
+        update_time = int(env_vars("update_interval"))
     
+    __logger.debug(f"Checking if last update was less than {update_time/60/60/24} days ago.")
+    if update_time > time.time() - os.path.getmtime(obj_path):
+        return  
+    
+    __logger.info(f"Attempting to update cache for {obj_path.split('cache')[1]}.")
     objs = {}
     objs['obj_list'] = {}
     objs['obj_list'][obj_name] = user_config['obj_list'][obj_name]
@@ -95,17 +102,25 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
     for key in dict_of_query_strs:
         __logger.debug(f"\t {dict_of_query_strs[key]}")
 
-    __logger.info(f"Updating excels in ../cache/.. ")
-    sf = ComplexSF(user_config[f'{org_type}_env'],
-                   user_config[f'{org_type}_details']['username'],
-                   user_config[f'{org_type}_details']['password'],
-                   user_config[f'{org_type}_details']['token']) # sandbox=user_config['dst_env']
+    if 'src' in org_type:
+        user_config = update_login_details(user_config, env_vars, org_name)
+        sf = ComplexSF(org_name,
+                    user_config[f'{org_type}_details'][org_name]['username'],
+                    user_config[f'{org_type}_details'][org_name]['password'],
+                    user_config[f'{org_type}_details'][org_name]['token'])
+    
+    else: 
+        sf = ComplexSF(user_config[f'{org_type}_env'],
+                    user_config[f'{org_type}_details']['username'],
+                    user_config[f'{org_type}_details']['password'],
+                    user_config[f'{org_type}_details']['token']) # sandbox=user_config['dst_env']
 
     if not sf.environment:
-        update_id_to_obj_mapper(sf, env_vars("id_org_mapper_relative_path").replace("/", os.sep))
+        update_id_to_obj_mapper(update_time, sf, 
+                                env_vars("id_org_mapper_relative_path").replace("/", os.sep))
 
     for obj_key in dict_of_query_strs:
-        __logger.debug("Performing")
+        __logger.debug(f"Performing query: {dict_of_query_strs[obj_key]}")
         records = sf.perform_query(dict_of_query_strs[obj_key])
         __logger.debug(f"Creating match string for {obj_key}")
         records_with_match_str = create_match_string(records, obj_key)
@@ -121,8 +136,9 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
 # ---------------------------------------------------------------------------------------------------------
 def create_query_strs(obj_list):
     dict_of_query_strs = {}
-    for obj_name in obj_list:       
-        obj_list[obj_name]['min_fields'].insert(0, 'Id')
+    for obj_name in obj_list:
+        if not 'Id' in obj_list[obj_name]['min_fields']:
+            obj_list[obj_name]['min_fields'].insert(0, 'Id')
         selections = ', '.join(obj_list[obj_name]['min_fields'])
         query_str = f"SELECT {selections} FROM {obj_name}"
         dict_of_query_strs[obj_name] = query_str
@@ -174,9 +190,9 @@ def save_records_to_json(records, obj, dst_env, sfObj: ComplexSF):
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def update_id_to_obj_mapper(sf: ComplexSF, saving_path):
+def update_id_to_obj_mapper(update_time, sf: ComplexSF, saving_path):
     __logger.info("Updating mapper which maps Ids to Objects. ")
-    if 604800 > time.time() - os.path.getmtime(saving_path): 
+    if update_time > time.time() - os.path.getmtime(saving_path): 
         return
         
     all_objects = sf.describe()['sobjects']
@@ -188,4 +204,15 @@ def update_id_to_obj_mapper(sf: ComplexSF, saving_path):
     # create_config(prefix_out_path, dict_to_write=prefix_dict)
     with open(prefix_out_path, 'w+') as outstream:
         outstream.write(json.dumps(prefix_dict, indent = 4))
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def update_login_details(user_config, env_vars, org_name):
+    try:
+        if org_name in user_config['src_details'].keys():
+            return
+    except AttributeError as e:
+        pass
+
+    return update_details('src_env', user_config, env_vars, org_name)
 # ---------------------------------------------------------------------------------------------------------

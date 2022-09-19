@@ -64,6 +64,7 @@ class Matcher:
 
     def __load_obj_data(self, org_name, object_name):
         excel_path = os.path.join(os.getcwd(), "cache", org_name, f"{object_name}.xlsx")
+        self.logger.debug(f"Loading object data from: {excel_path}")
         data = {}
         obj_excel_file = pd.ExcelFile(excel_path)
         sheet = pd.read_excel(obj_excel_file)
@@ -71,7 +72,7 @@ class Matcher:
         return data
     
     def get_src_match_string(self, id, src_org, object_name):
-        # load the obj dict and get string from matching 
+        self.logger.info(f"Getting src match string for {id}: {src_org} - {object_name}")
         obj_data = self.loaded_src_objs[src_org][object_name]
         matching_string = obj_data[obj_data["Id"] == id]
         if len(matching_string) == 1:

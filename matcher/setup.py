@@ -67,6 +67,35 @@ def get_details(org_env, user_config, __envdata__):
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
+def update_details(org_env, user_config, __envdata__, org_name=None):
+    org_type = org_env.split("_")[0]
+    access_str = ''
+
+    if 'tec' in org_name:
+        access_str = access_str + 'tec_'
+    elif 'zee' in org_name:
+        access_str = access_str + 'zee_'
+    elif 'med' in org_name:
+        access_str = access_str + 'med_' 
+
+    org = org_name.split('--')[1]
+    if not 'prod' in org:
+        access_str = access_str + org + "_"
+    
+    if not isinstance(user_config[f'{org_type}_details'], dict):
+        user_config[f'{org_type}_details'] = {}
+
+    user_config[f'{org_type}_details'][org_name] = {}
+
+    user_config[f'{org_type}_details'][org_name] = \
+    {'username': __envdata__(f'{access_str}Username'),
+     'password': __envdata__(f'{access_str}Password'),
+     'token': __envdata__(f'{access_str}Token')}
+
+    return user_config
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
 def create_configs_missing_file():
     with open(os.path.join(os.getcwd(), "CONFIGS_TO_ADD.txt"), 'w+') as f:
         f.write("The names of config files that were incorrectly configured or not present are placed here. \n")
