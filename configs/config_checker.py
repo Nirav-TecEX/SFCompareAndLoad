@@ -64,7 +64,7 @@ def get_user_configs(dst_org):
     # user_config['org_env'] = config_reader.get("DEFAULT", "Org_Env")
     user_config['dst_env'] = dst_org
     user_config['src_env'] = 'temp'
-    user_config['obj_list'] = ''
+    user_config['obj_list'] = {}
     
     return user_config
 #-----------------------------------------------------------------------------------------------------------

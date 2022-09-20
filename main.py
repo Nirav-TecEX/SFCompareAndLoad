@@ -20,7 +20,6 @@ import traceback
 
 from setup.load_setup import load_setup
 from matcher.setup import configs_correct, get_access_variables
-from matcher.updater import update_cache
 from matcher.match import match_strings, parse_source_file
 from configs.config_checker import get_user_configs
 from matcher.setup import create_configs_missing_file
@@ -110,4 +109,3 @@ if __name__ == "__main__":
     print("------ RUNNING FROM main.py ------")
 
     main()
-        # __logger.info(f"Error during process:\n{e}")

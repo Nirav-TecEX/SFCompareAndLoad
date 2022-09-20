@@ -47,18 +47,18 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
     dst_path = os.path.join(os.getcwd(), "cache", f"{dst_org}")
     __logger.info(f"Using destination data from: {dst_path}")
     
-    matching_obj = Matcher(src_file, src_additional_info)
+    matching_obj = Matcher(env_vars("update_interval"), src_file, src_additional_info)
     
     for sheet in matching_obj.src_file.keys():
         src_org = matching_obj.src_additional_info[sheet]['org'][0]
         input_key_row = src_additional_info[sheet]['input_key_start'][1][0]
-        cuurent_sheet = src_file[sheet]
+        current_sheet = src_file[sheet]
         group_org_name = src_org.split("--")[0]
         matching_obj.update_mappers(group_org_name, mappings_folder)
 
         # --- Done for each id in sheet ---
-        for row_index in range(input_key_row, len(cuurent_sheet)):
-            id = cuurent_sheet.iloc[row_index, 1]
+        for row_index in range(input_key_row, len(current_sheet)):
+            id = current_sheet.iloc[row_index, 1]
             new_id = id
             __logger.debug(f"Sheet: {sheet} \t Id: {id}")
 
@@ -66,30 +66,46 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
                 print("HERE")
                 
             if is_id(id):
-                if debug_mode and 'true' in env_vars("use_test_id").lower():
-                    id = "a26070000008Qy1AAE" # object_name = 'CPA_v2_0__c'
-
+                
                 object_name = matching_obj.get_object_type(id, group_org_name)
-
+                if debug_mode:
+                    if 'true' in env_vars("use_test_id").lower():
+                        id = "a26070000008Qy1AAE" # object_name = 'CPA_v2_0__c'
+                    if not object_name == 'CPA_v2_0__c':
+                        current_sheet.iloc[row_index, 1] = f'UNCHANGED - {id} - {object_name}'
+                        continue
+                
+                __logger.debug(f"Getting minimum fields for {object_name}")
                 user_config = get_obj_min_fields(object_name, user_config)
+                __logger.debug(f"Updating the DST c {object_name}")
                 update_single_obj_cache('dst', dst_org, object_name, user_config, env_vars=env_vars)
                 update_single_obj_cache('src', src_org, object_name, user_config, env_vars=env_vars)
 
+                __logger.debug(f"Checking loaded orgs and objs:")
+                __logger.debug(f"\t{dst_org} - {object_name}")
                 matching_obj.check_loaded_orgs_and_objects(dst_org, object_name)
+                __logger.debug(f"\t{src_org} - {object_name}")
                 matching_obj.check_loaded_orgs_and_objects(src_org, object_name, type='src')
 
-                obj_matching_string = matching_obj.get_src_match_string(id, src_org, object_name)
-                
+                try:
+                    obj_matching_string = matching_obj.get_src_match_string(id, src_org, object_name)
+                except Exception as e:
+                    __logger.debug(f"Unable to get matching string for SRC: {src_org} - {object_name} - {id}")
+
                 if isinstance(obj_matching_string, int):
                     continue
                 
-                new_id = matching_obj.match_id_to_dst_org(obj_matching_string, dst_org, object_name)
-                if debug_mode:
-                    new_id = "UPDATED - " + new_id
-            
-            cuurent_sheet.iloc[row_index, 1] = new_id
+                try:
+                    new_id = matching_obj.match_id_to_dst_org(obj_matching_string, dst_org, object_name)
+                    if debug_mode:
+                        new_id = "UPDATED - " + str(new_id)
+                except Exception as e:
+                    __logger.debug(f"Error finding match for SRC/DST: {src_org}/{dst_org} - {object_name} - {id}/**")
+                    new_id = "ERROR: "
+                    
+            current_sheet.iloc[row_index, 1] = new_id
         
-        src_file[sheet] = cuurent_sheet 
+        src_file[sheet] = current_sheet 
 
     if debug_mode:
         # run src_file["Sheet1"][98:99]   
@@ -185,6 +201,9 @@ def is_id(id):
 def write_to_output_excel(src_file):
     """ Creates an output file with the new data. """
     __logger.info("Writing to NEW EXCEL. ")
-    pass
+    with pd.ExcelWriter('test_output.xlsx', engine='openpyxl') as writer:
+        for sheet in src_file.keys():
+            src_file[sheet].to_excel(writer, sheet_name=sheet, index=False)
+        writer.save()
 # ---------------------------------------------------------------------------------------------------------
 
