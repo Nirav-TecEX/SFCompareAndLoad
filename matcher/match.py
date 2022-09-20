@@ -62,8 +62,8 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
             new_id = id
             __logger.debug(f"Sheet: {sheet} \t Id: {id}")
 
-            if id == '0011v00002w6D52AAE':
-                print("HERE")
+            # if id == '0011v00002w6D52AAE':
+            #     print("HERE")
                 
             if is_id(id):
                 
