@@ -5,6 +5,7 @@ import os
 __logger = logging.getLogger("main").getChild(__name__)
 
 #-----------------------------------------------------------------------------------------------------------
+# unused
 def check_configs_exist():
     config_reader = configparser.ConfigParser()
     user_ini = os.path.join(os.getcwd(), "configs", "user.ini")
@@ -19,6 +20,23 @@ def check_configs_exist():
         if not os.path.exists(config_fp):
             non_existing_configs.append(os.path.join(os.getcwd(), 'configs', f'{obj}.ini'))
             create_config(config_fp)
+            
+    return non_existing_configs
+#-----------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------
+def check_if_obj_config_is_useable(obj_name):
+    config_reader = configparser.ConfigParser()
+    config_fp = os.path.join(os.getcwd(), "configs", f"{obj_name}.ini")
+    config_reader.read_file(open(config_fp))
+
+    non_existing_configs = []
+
+    __logger.debug(f"Checking configs\{obj_name}.ini")
+
+    if not os.path.exists(config_fp):
+        non_existing_configs.append(os.path.join(os.getcwd(), 'configs', f'{config_fp}.ini'))
+        create_config(config_fp)
             
     return non_existing_configs
 #-----------------------------------------------------------------------------------------------------------
@@ -69,6 +87,7 @@ def get_user_configs(dst_org):
     return user_config
 #-----------------------------------------------------------------------------------------------------------
 
+#unused
 #-----------------------------------------------------------------------------------------------------------
 def get_WHERE_fields(obj_list):
     config_reader = configparser.ConfigParser()

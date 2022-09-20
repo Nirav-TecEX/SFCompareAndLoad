@@ -6,6 +6,7 @@ from configs.config_checker import check_configs_exist
 __setup_logger = logging.getLogger("main").getChild(__name__)
 
 # ---------------------------------------------------------------------------------------------------------
+# unused
 def configs_correct():
     some_configs_not_present = check_configs_exist()
 

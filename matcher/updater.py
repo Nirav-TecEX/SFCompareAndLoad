@@ -47,6 +47,10 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
     objs = {}
     objs['obj_list'] = {}
     objs['obj_list'][obj_name] = user_config['obj_list'][obj_name]
+    
+    if 'Example' in objs['obj_list'][obj_name]['min_fields']:
+        __logger.info(f"INCORRECT CONFIGS for {obj_name}")
+        return 2
 
     __logger.debug(f"Creating queries for updates ")
     dict_of_query_strs = create_query_strs(objs['obj_list'])
@@ -138,9 +142,7 @@ def save_records_to_json(records, obj, dst_env, sfObj: ComplexSF):
 # ---------------------------------------------------------------------------------------------------------
 def update_id_to_obj_mapper(saving_path, sf: ComplexSF):
     __logger.info("Updating mapper which maps Ids to Objects. ")
-    # if update_time > time.time() - os.path.getmtime(saving_path): 
-    #     return
-        
+
     all_objects = sf.describe()['sobjects']
     prefix_dict = {all_objects[i]['keyPrefix'] : all_objects[i]['name'] for i in range(len(all_objects))}
 

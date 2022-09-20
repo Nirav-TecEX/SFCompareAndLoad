@@ -78,8 +78,12 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
                 __logger.debug(f"Getting minimum fields for {object_name}")
                 user_config = get_obj_min_fields(object_name, user_config)
                 __logger.debug(f"Updating the DST c {object_name}")
-                update_single_obj_cache('dst', dst_org, object_name, user_config, env_vars=env_vars)
-                update_single_obj_cache('src', src_org, object_name, user_config, env_vars=env_vars)
+                response = update_single_obj_cache('dst', dst_org, object_name, user_config, env_vars=env_vars)
+                if response == 2:
+                    continue
+                response = update_single_obj_cache('src', src_org, object_name, user_config, env_vars=env_vars)
+                if response == 2:
+                    continue
 
                 __logger.debug(f"Checking loaded orgs and objs:")
                 __logger.debug(f"\t{dst_org} - {object_name}")
@@ -206,4 +210,3 @@ def write_to_output_excel(src_file):
             src_file[sheet].to_excel(writer, sheet_name=sheet, index=False)
         writer.save()
 # ---------------------------------------------------------------------------------------------------------
-
