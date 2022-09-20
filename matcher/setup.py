@@ -26,8 +26,7 @@ def get_access_variables(user_config, __envdata__):
         updates with. 
     """
 
-    user_config = get_details('dst_env', user_config, __envdata__)
-    user_config = get_details('src_env', user_config, __envdata__)        
+    user_config = get_details('dst_env', user_config, __envdata__)     
 
     return user_config
     
