@@ -8,7 +8,7 @@ from .matcher_class import Matcher
 from matcher.updater import update_single_obj_cache
 from configs. config_checker import get_obj_min_fields
 
-__logger = logging.getLogger("matcher").getChild(__name__)
+__logger = logging.getLogger("matching_process")
 
 # ---------------------------------------------------------------------------------------------------------
 def load_match_string_debug_vars():
@@ -55,37 +55,22 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
         cuurent_sheet = src_file[sheet]
         group_org_name = src_org.split("--")[0]
         matching_obj.update_mappers(group_org_name, mappings_folder)
-        # at this point, i have the mapper for the group org- like tecex, zee or medical
-        # which will allow me to take an id and match it to its object type
-        # I would now go through each id in the excel and:
-        #   1) see which object type it is
-        #   2) go to the SRC ORG and load the OBJ datasheet (load in the class)
-        #          -> if it is not present
-        #   3) use the id to get the objs matching string
-        #   4) go to the DST ORG and load the OBJ datasheet (load in the class)
-        #          -> if it is not present
-        #   5) use the matching string to find it corresponding id
-        #   6) update excel dict
-        #   7) write to new excel 
-
-
 
         # --- Done for each id in sheet ---
-        # for row in 
         for row_index in range(input_key_row, len(cuurent_sheet)):
             id = cuurent_sheet.iloc[row_index, 1]
             new_id = id
+            __logger.debug(f"Sheet: {sheet} \t Id: {id}")
 
+            if id == '0011v00002w6D52AAE':
+                print("HERE")
+                
             if is_id(id):
-                if debug_mode:
-                    
+                if debug_mode and 'true' in env_vars("use_test_id").lower():
                     id = "a26070000008Qy1AAE" # object_name = 'CPA_v2_0__c'
 
                 object_name = matching_obj.get_object_type(id, group_org_name)
 
-                # checking if the datasheets for the objects from the source and desitnation orgs are loaded
-                
-                # do this & perform update
                 user_config = get_obj_min_fields(object_name, user_config)
                 update_single_obj_cache('dst', dst_org, object_name, user_config, env_vars=env_vars)
                 update_single_obj_cache('src', src_org, object_name, user_config, env_vars=env_vars)
@@ -106,8 +91,8 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
         
         src_file[sheet] = cuurent_sheet 
 
-    # run src_file["Sheet1"][98:99]   
     if debug_mode:
+        # run src_file["Sheet1"][98:99]   
         __logger.info(f"New Id: {src_file['Sheet1'][98:99]}")
         __logger.info(f"New Id: {src_file['Sheet2'][98:99]}")
     write_to_output_excel(src_file)
@@ -145,13 +130,13 @@ def parse_source_file(path):
 
 # ---------------------------------------------------------------------------------------------------------
 def excelWB_to_dict(excel_file_path):
-        files = pd.ExcelFile(excel_file_path)
-        data = {}
-        for sheet_name in files.sheet_names:
-            sheet = pd.read_excel(files, sheet_name=sheet_name)
-            data[sheet_name] = sheet
-        
-        return data
+    files = pd.ExcelFile(excel_file_path)
+    data = {}
+    for sheet_name in files.sheet_names:
+        sheet = pd.read_excel(files, sheet_name=sheet_name)
+        data[sheet_name] = sheet
+    
+    return data
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
@@ -199,6 +184,7 @@ def is_id(id):
 # ---------------------------------------------------------------------------------------------------------
 def write_to_output_excel(src_file):
     """ Creates an output file with the new data. """
+    __logger.info("Writing to NEW EXCEL. ")
     pass
 # ---------------------------------------------------------------------------------------------------------
 

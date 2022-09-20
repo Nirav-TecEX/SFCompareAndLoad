@@ -83,20 +83,23 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
     
     obj_path = os.path.join(os.getcwd(), 'cache', org_name, f"{obj_name}.xlsx")
     if 'true' in env_vars("DEBUG_MODE").lower(): 
-        update_time = 1
+        update_time = int(env_vars("debug_update_interval"))
     else:
         update_time = int(env_vars("update_interval"))
     
     __logger.debug(f"Checking if last update was less than {update_time/60/60/24} days ago.")
-    if update_time > time.time() - os.path.getmtime(obj_path):
-        return  
+    try:
+        if update_time > time.time() - os.path.getmtime(obj_path):
+            return 0
+    except FileNotFoundError as e:
+        pass  
     
     __logger.info(f"Attempting to update cache for {obj_path.split('cache')[1]}.")
     objs = {}
     objs['obj_list'] = {}
     objs['obj_list'][obj_name] = user_config['obj_list'][obj_name]
 
-    __logger.info(f"Creating queries for updates ")
+    __logger.debug(f"Creating queries for updates ")
     dict_of_query_strs = create_query_strs(objs['obj_list'])
     __logger.debug("Queries:")
     for key in dict_of_query_strs:
@@ -121,6 +124,10 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
 
     for obj_key in dict_of_query_strs:
         __logger.debug(f"Performing query: {dict_of_query_strs[obj_key]}")
+
+        if 'example, fields' in dict_of_query_strs[obj_key].lower():
+            continue
+        
         records = sf.perform_query(dict_of_query_strs[obj_key])
         __logger.debug(f"Creating match string for {obj_key}")
         records_with_match_str = create_match_string(records, obj_key)

@@ -5,7 +5,7 @@ import pandas as pd
 
 class Matcher:
     def __init__(self, src_file, src_additional_info):
-        self.logger = logging.getLogger("matcher").getChild("MatcherClass")
+        self.logger = logging.getLogger("MatcherClass")
         self.src_file = src_file
         self.src_additional_info = src_additional_info
         self.__src_id_obj_mappings = {}
@@ -26,7 +26,7 @@ class Matcher:
 
     def update_mappers(self, group_org_name, mappings_folder):
         if not self.mapping_loaded(group_org_name):
-            self.logger.info(f"Getting mappings for {group_org_name}")
+            self.logger.debug(f"Loading mappings for {group_org_name}")
             id_obj_mappings_path = os.path.join(os.getcwd(), mappings_folder, f"{group_org_name}_mappings.json")
             self.id_obj_mappings[group_org_name] = self.load_src_id_obj_mappings(id_obj_mappings_path)
         else:
@@ -66,9 +66,12 @@ class Matcher:
         excel_path = os.path.join(os.getcwd(), "cache", org_name, f"{object_name}.xlsx")
         self.logger.debug(f"Loading object data from: {excel_path}")
         data = {}
-        obj_excel_file = pd.ExcelFile(excel_path)
-        sheet = pd.read_excel(obj_excel_file)
-        data[object_name] = sheet
+        try:
+            obj_excel_file = pd.ExcelFile(excel_path)
+            sheet = pd.read_excel(obj_excel_file)
+            data[object_name] = sheet
+        except FileNotFoundError as e:
+            pass
         return data
     
     def get_src_match_string(self, id, src_org, object_name):

@@ -33,6 +33,22 @@
             "level": "DEBUG",
             "when":"midnight",
             "backupCount":3
+        },
+        "matching_process": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/matching_process.log",
+            "formatter": "file",
+            "level": "DEBUG",
+            "when":"midnight",
+            "backupCount":3
+        },
+        "MatcherClass": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/matcher_class.log",
+            "formatter": "file",
+            "level": "DEBUG",
+            "when":"midnight",
+            "backupCount":3
         }
     },
     "loggers": {
@@ -49,6 +65,22 @@
             "handlers": [
                 "streamhandler",
                 "matcher"
+            ],
+            "propagate": 0
+        },
+        "matching_process": {
+            "level": "DEBUG",
+            "handlers": [
+                "streamhandler",
+                "matching_process"
+            ],
+            "propagate": 0
+        },
+        "MatcherClass": {
+            "level": "DEBUG",
+            "handlers": [
+                "streamhandler",
+                "MatcherClass"
             ],
             "propagate": 0
         }

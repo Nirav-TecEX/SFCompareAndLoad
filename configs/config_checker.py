@@ -17,7 +17,6 @@ def check_configs_exist():
         __logger.info(f"Checking configs\{obj}.ini")
         config_fp = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
         if not os.path.exists(config_fp):
-            # non_existing_configs.append(f"configs//{obj}.ini")
             non_existing_configs.append(os.path.join(os.getcwd(), 'configs', f'{obj}.ini'))
             create_config(config_fp)
             
@@ -39,7 +38,7 @@ def get_obj_min_fields(obj_name, user_config):
             for configName in non_existing_configs:
                 f.write("\t"+configName+"\n")
             f.write("\n")
-        return 0
+        return user_config
     else:
         user_config['obj_list'][obj_name] = get_WHERE_fields_for_obj([obj_name])
 
@@ -80,7 +79,7 @@ def get_user_configs():
 def get_WHERE_fields(obj_list):
     config_reader = configparser.ConfigParser()
     all_obj_items = {}
-    __logger.info(f"Getting WHERE fields and generating queries from configs. ")
+    __logger.debug(f"Getting WHERE fields and generating queries from configs. ")
     for obj in obj_list:
         user_ini = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
         config_reader.read_file(open(user_ini))
@@ -97,7 +96,7 @@ def get_WHERE_fields(obj_list):
 def get_WHERE_fields_for_obj(obj_list):
     config_reader = configparser.ConfigParser()
     all_obj_items = {}
-    __logger.info(f"Getting WHERE fields and generating queries from configs. ")
+    __logger.debug(f"Getting WHERE fields and generating queries from configs for {obj_list}. ")
     for obj in obj_list:
         user_ini = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
         config_reader.read_file(open(user_ini))

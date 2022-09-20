@@ -114,10 +114,12 @@ Outputs can be found at:
 
 <!-- ROADMAP -->
 ## Roadmap
-
-- [ ] Build version 1 for a single object
-  - [ ] Process to choose create matching string -> ~~dynamic~~ or static/from env?
-- [ ] Allow configurations for the matching string from the .env
+- [X] Build version 1 for a single object
+  - [X] Process to choose create matching string -> ~~dynamic~~ or static/from env?
+- [X] Allow configurations for the matching string from the .env
+  - For the obj, should be updated if it does not exist -> but breaks in testing
+- [ ] Fix matcher_class.__load_obj_data when the excel does not exist?
+- [ ] Remove reading from user_config.ini file
 - [ ] Create an executable/ batch file
 - [ ] Add more object mappings
 

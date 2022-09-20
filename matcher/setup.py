@@ -7,8 +7,6 @@ __setup_logger = logging.getLogger("main").getChild(__name__)
 
 # ---------------------------------------------------------------------------------------------------------
 def configs_correct():
-
-    print("Checking configs")
     some_configs_not_present = check_configs_exist()
 
     if some_configs_not_present:
