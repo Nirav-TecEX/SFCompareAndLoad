@@ -1,19 +1,1 @@
 The names of config files that were incorrectly configured or not present are placed here. 
-Account	configs\Account.ini
-
-Country__c	configs\Country__c.ini
-
-Document_Relationship__c	configs\Document_Relationship__c.ini
-
-Project_Countries__c	configs\Project_Countries__c.ini
-
-Affiliate__c	configs\Affiliate__c.ini
-
-Part__c	configs\Part__c.ini
-
-Product2	configs\Product2.ini
-
-Country_Compliance__c	configs\Country_Compliance__c.ini
-
-Compliance_Document__c	configs\Compliance_Document__c.ini
-

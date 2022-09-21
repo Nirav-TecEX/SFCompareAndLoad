@@ -61,9 +61,6 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
             id = current_sheet.iloc[row_index, 1]
             new_id = id
             __logger.debug(f"Sheet: {sheet} \t Id: {id}")
-
-            # if id == '0011v00002w6D52AAE':
-            #     print("HERE")
                 
             if is_id(id):
                 
@@ -71,15 +68,12 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
                 if debug_mode:
                     if 'true' in env_vars("use_test_id").lower():
                         id = "a26070000008Qy1AAE" # object_name = 'CPA_v2_0__c'
-                    # if not object_name == 'CPA_v2_0__c':
-                    #     current_sheet.iloc[row_index, 1] = f'UNCHANGED - {id} - {object_name}'
-                    #     continue
                 
                 __logger.debug(f"Getting minimum fields for {object_name}")
                 user_config = get_obj_min_fields(object_name, user_config)
                 if 'Example' in user_config['obj_list'][object_name]['min_fields']:
                     __logger.info(f"INCORRECT CONFIGS for {object_name}")
-                    current_sheet.iloc[row_index, 1] = f'UNCHANGED - {id} - {object_name}'
+                    new_id = f'UNCHANGED - {id} - {object_name}'
                 else:
                     __logger.debug(f"Updating the DST c {object_name}")
                     response = update_single_obj_cache('dst', dst_org, object_name, 
