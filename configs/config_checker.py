@@ -90,7 +90,7 @@ def get_user_configs(dst_org):
 
 #unused
 #-----------------------------------------------------------------------------------------------------------
-def get_WHERE_fields(obj_list):
+def get_WHERE_fields_for_obj_list(obj_list):
     config_reader = configparser.ConfigParser()
     all_obj_items = {}
     __logger.debug(f"Getting WHERE fields and generating queries from configs. ")
