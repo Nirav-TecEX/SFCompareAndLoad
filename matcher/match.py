@@ -71,41 +71,43 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
                 if debug_mode:
                     if 'true' in env_vars("use_test_id").lower():
                         id = "a26070000008Qy1AAE" # object_name = 'CPA_v2_0__c'
-                    if not object_name == 'CPA_v2_0__c':
-                        current_sheet.iloc[row_index, 1] = f'UNCHANGED - {id} - {object_name}'
-                        continue
+                    # if not object_name == 'CPA_v2_0__c':
+                    #     current_sheet.iloc[row_index, 1] = f'UNCHANGED - {id} - {object_name}'
+                    #     continue
                 
                 __logger.debug(f"Getting minimum fields for {object_name}")
                 user_config = get_obj_min_fields(object_name, user_config)
-                __logger.debug(f"Updating the DST c {object_name}")
-                response = update_single_obj_cache('dst', dst_org, object_name, user_config, env_vars=env_vars)
-                if response == 2:
-                    continue
-                response = update_single_obj_cache('src', src_org, object_name, user_config, env_vars=env_vars)
-                if response == 2:
-                    continue
+                if 'Example' in user_config['obj_list'][object_name]['min_fields']:
+                    __logger.info(f"INCORRECT CONFIGS for {object_name}")
+                    current_sheet.iloc[row_index, 1] = f'UNCHANGED - {id} - {object_name}'
+                else:
+                    __logger.debug(f"Updating the DST c {object_name}")
+                    response = update_single_obj_cache('dst', dst_org, object_name, 
+                                                    user_config, env_vars=env_vars)
+                    response = update_single_obj_cache('src', src_org, object_name, 
+                                                        user_config, env_vars=env_vars)
 
-                __logger.debug(f"Checking loaded orgs and objs:")
-                __logger.debug(f"\t{dst_org} - {object_name}")
-                matching_obj.check_loaded_orgs_and_objects(dst_org, object_name)
-                __logger.debug(f"\t{src_org} - {object_name}")
-                matching_obj.check_loaded_orgs_and_objects(src_org, object_name, type='src')
+                    __logger.debug(f"Checking loaded orgs and objs:")
+                    __logger.debug(f"\t{dst_org} - {object_name}")
+                    matching_obj.check_loaded_orgs_and_objects(dst_org, object_name)
+                    __logger.debug(f"\t{src_org} - {object_name}")
+                    matching_obj.check_loaded_orgs_and_objects(src_org, object_name, type='src')
 
-                try:
-                    obj_matching_string = matching_obj.get_src_match_string(id, src_org, object_name)
-                except Exception as e:
-                    __logger.debug(f"Unable to get matching string for SRC: {src_org} - {object_name} - {id}")
+                    try:
+                        obj_matching_string = matching_obj.get_src_match_string(id, src_org, object_name)
+                    except Exception as e:
+                        __logger.debug(f"Unable to get matching string for SRC: {src_org} - {object_name} - {id}")
 
-                if isinstance(obj_matching_string, int):
-                    continue
-                
-                try:
-                    new_id = matching_obj.match_id_to_dst_org(obj_matching_string, dst_org, object_name)
-                    if debug_mode:
-                        new_id = "UPDATED - " + str(new_id)
-                except Exception as e:
-                    __logger.debug(f"Error finding match for SRC/DST: {src_org}/{dst_org} - {object_name} - {id}/**")
-                    new_id = "ERROR: "
+                    if isinstance(obj_matching_string, int):
+                        continue
+                    
+                    try:
+                        new_id = matching_obj.match_id_to_dst_org(obj_matching_string, dst_org, object_name)
+                        if debug_mode:
+                            new_id = "UPDATED - " + str(new_id)
+                    except Exception as e:
+                        __logger.debug(f"Error finding match for SRC/DST: {src_org}/{dst_org} - {object_name} - {id}/**")
+                        new_id = "ERROR: "
                     
             current_sheet.iloc[row_index, 1] = new_id
         

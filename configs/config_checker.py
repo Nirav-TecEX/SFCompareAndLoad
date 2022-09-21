@@ -56,7 +56,8 @@ def get_obj_min_fields(obj_name, user_config):
             for configName in non_existing_configs:
                 f.write("\t"+configName+"\n")
             f.write("\n")
-        return user_config
+        # return user_config
+        get_obj_min_fields(obj_name, user_config)
     else:
         user_config['obj_list'][obj_name] = get_WHERE_fields_for_obj([obj_name])
 

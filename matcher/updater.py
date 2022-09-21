@@ -42,15 +42,12 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
             return 0
     except FileNotFoundError as e:
         return 1  
+        # create_config(os.path.join(os.getcwd(), "configs", f"{obj_name}.ini"))
     
     __logger.info(f"Attempting to update cache for {obj_path.split('cache')[1]}.")
     objs = {}
     objs['obj_list'] = {}
     objs['obj_list'][obj_name] = user_config['obj_list'][obj_name]
-    
-    if 'Example' in objs['obj_list'][obj_name]['min_fields']:
-        __logger.info(f"INCORRECT CONFIGS for {obj_name}")
-        return 2
 
     __logger.debug(f"Creating queries for updates ")
     dict_of_query_strs = create_query_strs(objs['obj_list'])
