@@ -3,7 +3,7 @@ import os
 
 from configs.config_checker import check_configs_exist 
 
-__setup_logger = logging.getLogger("main").getChild(__name__)
+__setup_logger = logging.getLogger("main_matcher").getChild(__name__)
 
 # ---------------------------------------------------------------------------------------------------------
 # unused

@@ -6,7 +6,7 @@ import json
 from .salesforce import ComplexSF
 from .matcher_class import Matcher
 from matcher.updater import update_single_obj_cache
-from configs. config_checker import get_obj_min_fields
+from configs.config_checker import get_obj_min_fields, sf_Module_path
 
 __logger = logging.getLogger("matching_process")
 
@@ -45,8 +45,8 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
         - Can pssibly be made faster with searching algorithms.         
     """
 
-    mappings_folder = os.path.join(os.getcwd(), env_vars("id_org_mapper_relative_path").replace("/", os.sep))
-    dst_path = os.path.join(os.getcwd(), "cache", f"{dst_org}")
+    mappings_folder = os.path.join(sf_Module_path(), env_vars("id_org_mapper_relative_path").replace("/", os.sep))
+    dst_path = os.path.join(sf_Module_path(), "cache", f"{dst_org}")
     __logger.info(f"Using destination data from: {dst_path}")
     
     matching_obj = Matcher(env_vars("update_interval"), src_file, src_additional_info)

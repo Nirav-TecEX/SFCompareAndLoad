@@ -2,13 +2,18 @@ import logging
 import configparser
 import os
 
-__logger = logging.getLogger("main").getChild(__name__)
+__logger = logging.getLogger("main_matcher").getChild(__name__)
+
+##---------------------------------------------------------------------------------------
+def sf_Module_path():
+    return os.path.join(os.getcwd())
+##---------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------
 # unused
 def check_configs_exist():
     config_reader = configparser.ConfigParser()
-    user_ini = os.path.join(os.getcwd(), "configs", "user.ini")
+    user_ini = os.path.join(sf_Module_path(), "configs", "user.ini")
     config_reader.read_file(open(user_ini))
 
     obj_list = config_reader.get("DEFAULT", "Object_List").split(',')
@@ -16,9 +21,9 @@ def check_configs_exist():
     non_existing_configs = []
     for obj in obj_list:
         __logger.info(f"Checking configs\{obj}.ini")
-        config_fp = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
+        config_fp = os.path.join(sf_Module_path(), "configs", f"{obj}.ini")
         if not os.path.exists(config_fp):
-            non_existing_configs.append(os.path.join(os.getcwd(), 'configs', f'{obj}.ini'))
+            non_existing_configs.append(os.path.join(sf_Module_path(), 'configs', f'{obj}.ini'))
             create_config(config_fp)
             
     return non_existing_configs
@@ -27,7 +32,7 @@ def check_configs_exist():
 #-----------------------------------------------------------------------------------------------------------
 def check_if_obj_config_is_useable(obj_name):
     config_reader = configparser.ConfigParser()
-    config_fp = os.path.join(os.getcwd(), "configs", f"{obj_name}.ini")
+    config_fp = os.path.join(sf_Module_path(), "configs", f"{obj_name}.ini")
     config_reader.read_file(open(config_fp))
 
     non_existing_configs = []
@@ -35,7 +40,7 @@ def check_if_obj_config_is_useable(obj_name):
     __logger.debug(f"Checking configs\{obj_name}.ini")
 
     if not os.path.exists(config_fp):
-        non_existing_configs.append(os.path.join(os.getcwd(), 'configs', f'{config_fp}.ini'))
+        non_existing_configs.append(os.path.join(sf_Module_path(), 'configs', f'{config_fp}.ini'))
         create_config(config_fp)
             
     return non_existing_configs
@@ -46,12 +51,12 @@ def get_obj_min_fields(obj_name, user_config):
     non_existing_configs = []
     
     __logger.info(f"Checking configs\{obj_name}.ini")
-    config_fp = os.path.join(os.getcwd(), "configs", f"{obj_name}.ini")
+    config_fp = os.path.join(sf_Module_path(), "configs", f"{obj_name}.ini")
     if not os.path.exists(config_fp):
         non_existing_configs.append(os.path.join('configs', f'{obj_name}.ini'))
         create_config(config_fp)
 
-        with open(os.path.join(os.getcwd(), "CONFIGS_TO_ADD.txt"), 'a') as f:
+        with open(os.path.join(sf_Module_path(), "CONFIGS_TO_ADD.txt"), 'a') as f:
             f.write(f"{obj_name}")
             for configName in non_existing_configs:
                 f.write("\t"+configName+"\n")
@@ -95,7 +100,7 @@ def get_WHERE_fields_for_obj_list(obj_list):
     all_obj_items = {}
     __logger.debug(f"Getting WHERE fields and generating queries from configs. ")
     for obj in obj_list:
-        user_ini = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
+        user_ini = os.path.join(sf_Module_path(), "configs", f"{obj}.ini")
         config_reader.read_file(open(user_ini))
 
         min_fields = config_reader.get("DEFAULT", "Minimum_Fields").split(',')
@@ -112,7 +117,7 @@ def get_WHERE_fields_for_obj(obj_list):
     all_obj_items = {}
     __logger.debug(f"Getting WHERE fields and generating queries from configs for {obj_list}. ")
     for obj in obj_list:
-        user_ini = os.path.join(os.getcwd(), "configs", f"{obj}.ini")
+        user_ini = os.path.join(sf_Module_path(), "configs", f"{obj}.ini")
         config_reader.read_file(open(user_ini))
 
         min_fields = config_reader.get("DEFAULT", "Minimum_Fields").split(',')

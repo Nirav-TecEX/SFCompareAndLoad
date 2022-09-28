@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 from matcher.updater import should_not_update_file, update_id_to_obj_mapper
+from configs.config_checker import sf_Module_path
 
 class Matcher:
     def __init__(self, update_time, src_file, src_additional_info):
@@ -30,7 +31,7 @@ class Matcher:
     def update_mappers(self, group_org_name, mappings_folder, sfObj=None):
         if not self.mapping_loaded(group_org_name):
             self.logger.debug(f"Loading mappings for {group_org_name}")
-            id_obj_mappings_path = os.path.join(os.getcwd(), mappings_folder, f"{group_org_name}_mappings.json")
+            id_obj_mappings_path = os.path.join(mappings_folder, f"{group_org_name}_mappings.json")
             if not should_not_update_file(id_obj_mappings_path, self.update_time):
                 update_id_to_obj_mapper(id_obj_mappings_path, sfObj)
             self.id_obj_mappings[group_org_name] = self.load_src_id_obj_mappings(id_obj_mappings_path)
@@ -76,7 +77,7 @@ class Matcher:
             self.logger.info(f"Unable to check data for: {type} - {org_name} - {object_name}")
 
     def __load_obj_data(self, org_name, object_name):
-        excel_path = os.path.join(os.getcwd(), "cache", org_name, f"{object_name}.xlsx")
+        excel_path = os.path.join(sf_Module_path(),"cache", org_name, f"{object_name}.xlsx")
         self.logger.debug(f"Loading object data from: {excel_path}")
         data = {}
         try:

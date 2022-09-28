@@ -23,6 +23,7 @@ from matcher.setup import configs_correct, get_access_variables
 from matcher.match import match_strings, parse_source_file
 from configs.config_checker import get_user_configs
 from matcher.setup import create_configs_missing_file
+from configs.config_checker import sf_Module_path
 
 # __ENVDATA__ = config
 
@@ -30,13 +31,12 @@ __ENVDATA__ = AutoConfig(search_path=os.path.join(os.getcwd(), ".env"))
 load_setup(__ENVDATA__("CHECK_FOLDERS"),
            __ENVDATA__("LOAD_LOGGERS"))
 
-__logger = logging.getLogger("main")
+__logger = logging.getLogger("main_matcher")
 create_configs_missing_file()
 
 # ---------------------------------------------------------------------------------------------------------
 def load_debug_vars():
-    test_excel_name = os.path.join(os.getcwd(), "Test_TestCases.xlsx")
-
+    test_excel_name = os.path.join(sf_Module_path(), "Test_TestCases.xlsx")
     return test_excel_name
 # ---------------------------------------------------------------------------------------------------------
 
@@ -61,11 +61,11 @@ def run_matcher(dst_org, excel_name):
     
     # --------- P2 --------------------------------------------------
     __logger.info("Checking folder structures ...") 
-    path = os.path.join(os.getcwd(), 'cache', f"{user_config['dst_env']}")
+    path = os.path.join(sf_Module_path(), 'cache', f"{user_config['dst_env']}")
     if not os.path.exists(path):
         os.mkdir(path)
     if not user_config['src_env'].lower() == 'excel':
-        path = os.path.join(os.getcwd(), 'cache', f"{user_config['src_env']}")
+        path = os.path.join(sf_Module_path(), 'cache', f"{user_config['src_env']}")
         if not os.path.exists(path):
             os.mkdir(path)
 

@@ -6,7 +6,7 @@ import time
 
 from .setup import update_details
 from .salesforce import ComplexSF
-from configs.config_checker import create_config
+from configs.config_checker import create_config, sf_Module_path
 
 __logger = logging.getLogger("matcher").getChild(__name__)
 
@@ -29,7 +29,7 @@ def update_single_obj_cache(org_type, org_name, obj_name, user_config, env_vars)
         
         Still need to implement the timer checker. """
     
-    obj_path = os.path.join(os.getcwd(), 'cache', org_name, f"{obj_name}.xlsx")
+    obj_path = os.path.join(sf_Module_path(), 'cache', org_name, f"{obj_name}.xlsx")
     if 'true' in env_vars("DEBUG_MODE").lower(): 
         time_interval = int(env_vars("debug_update_interval"))
     else:
@@ -119,7 +119,7 @@ def create_match_string(records, obj_key):
 
 # ---------------------------------------------------------------------------------------------------------
 def save_records(records, obj, dst_env, sfObj: ComplexSF):
-    path = os.path.join(os.getcwd(), 'cache', f'{dst_env}')
+    path = os.path.join(sf_Module_path(), 'cache', f'{dst_env}')
     excel_path = os.path.join(path, f"{obj}.xlsx")
     __logger.debug(f"Saving to: {excel_path} ")
     with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
@@ -129,7 +129,7 @@ def save_records(records, obj, dst_env, sfObj: ComplexSF):
 
 # ---------------------------------------------------------------------------------------------------------
 def save_records_to_json(records, obj, dst_env, sfObj: ComplexSF):
-    path = os.path.join(os.getcwd(), 'cache', f'{dst_env}')
+    path = os.path.join(sf_Module_path(), 'cache', f'{dst_env}')
     json_path = os.path.join(path, f"{obj}.json")
     __logger.debug(f"Saving to: {json_path} ")
     with open(json_path, 'w+') as outstream:
