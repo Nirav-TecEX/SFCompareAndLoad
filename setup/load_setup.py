@@ -20,9 +20,13 @@ def load_setup(check_folds, load_logs):
 #-------------------------------------------------------------------
 def load_loggers():
     print("\nLoggers Loading ...")
-    with open("log_config.json", 'r') as f:
-        log_config_data = json.load(f)
-        dictConfig(log_config_data)
+    try:
+        with open("log_config.json", 'r') as f:
+            log_config_data = json.load(f)
+            dictConfig(log_config_data)
+    except FileNotFoundError:
+        with open("logging_config.json", 'r') as f:
+            log_config_data = json.load(f)
 
     print("Loggers Loaded:")
     for logger_name in log_config_data['loggers']:
