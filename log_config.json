@@ -18,9 +18,9 @@
             "formatter": "stream",
             "stream": "ext://sys.stdout"
         },
-        "main": {
+        "main_matcher": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/main.log",
+            "filename": "logs/main_matcher.log",
             "formatter": "file",
             "level": "DEBUG",
             "when":"midnight",
@@ -52,11 +52,11 @@
         }
     },
     "loggers": {
-        "main": {
+        "main_matcher": {
             "level": "DEBUG",
             "handlers": [
                 "streamhandler",
-                "main"
+                "main_matcher"
             ],
             "propagate": 0
         },
