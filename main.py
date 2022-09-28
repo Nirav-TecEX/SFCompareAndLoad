@@ -12,7 +12,7 @@ If DEBUG_MODE is True:
     3) matcher/updater.py       uses different time to check for updates 
 """
 
-from decouple import config
+from decouple import config, AutoConfig
 import logging
 import os
 from datetime import datetime
@@ -24,7 +24,9 @@ from matcher.match import match_strings, parse_source_file
 from configs.config_checker import get_user_configs
 from matcher.setup import create_configs_missing_file
 
-__ENVDATA__ = config
+# __ENVDATA__ = config
+
+__ENVDATA__ = AutoConfig(search_path=os.path.join(os.getcwd(), ".env"))
 load_setup(__ENVDATA__("CHECK_FOLDERS"),
            __ENVDATA__("LOAD_LOGGERS"))
 
@@ -33,13 +35,13 @@ create_configs_missing_file()
 
 # ---------------------------------------------------------------------------------------------------------
 def load_debug_vars():
-    test_excel_name = os.path.join(os.getcwd(), "TestSheet1.xlsx")
+    test_excel_name = os.path.join(os.getcwd(), "Test_TestCases.xlsx")
 
     return test_excel_name
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def run_matcher(dst_org="tecex--ruleseng", excel_name=None):
+def run_matcher(dst_org, excel_name):
     debug_mode = 'true' in __ENVDATA__("DEBUG_MODE").lower()
     
     # --------- P0 --------------------------------------------------
@@ -47,12 +49,7 @@ def run_matcher(dst_org="tecex--ruleseng", excel_name=None):
         print("\t\n< Starting in DEBUG MODE >\n")
         excel_name = load_debug_vars()
     
-    # # --------- P1 --------------------------------------------------
-    # __logger.info("Checking configs ...") 
-    # if not configs_correct():
-    #     return 1
-    
-    # --------- P2 --------------------------------------------------
+    # --------- P1 --------------------------------------------------
     __logger.info("Getting config data ...") 
     try:
         user_config = get_user_configs(dst_org)
@@ -62,7 +59,7 @@ def run_matcher(dst_org="tecex--ruleseng", excel_name=None):
         __logger.debug(e)
         return 2
     
-    # --------- P3 --------------------------------------------------
+    # --------- P2 --------------------------------------------------
     __logger.info("Checking folder structures ...") 
     path = os.path.join(os.getcwd(), 'cache', f"{user_config['dst_env']}")
     if not os.path.exists(path):
@@ -72,40 +69,46 @@ def run_matcher(dst_org="tecex--ruleseng", excel_name=None):
         if not os.path.exists(path):
             os.mkdir(path)
 
-    # --------- P4 --------------------------------------------------
+    # --------- P3 --------------------------------------------------
     __logger.info("Accessing & Parsing data ... ") 
     if not user_config['src_details']:
         __logger.info("Parsing source file ")
         src_file, src_additional_info = parse_source_file(excel_name)
 
-    # --------- P5 --------------------------------------------------
-    __logger.info("Searching for matches ... \n")
+    # --------- P4 --------------------------------------------------
+    __logger.info("Running match process")
+    output_excel_name = excel_name.split(".xlsx")[0]+"-out"+".xlsx"
+    __logger.info(f"Will write to {output_excel_name}")
     response = match_strings(src_file, 
                 src_additional_info, 
                 user_config=user_config, 
                 env_vars=__ENVDATA__, 
-                debug_mode=debug_mode)
+                debug_mode=debug_mode,
+                output_excel_name=output_excel_name)
+    
+    return output_excel_name
 
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def main():
+def main(dst_org="tecex--ruleseng", excel_name=None):
     start_time = datetime.now()
 
     try:
-        run_matcher()
+        output_excel_name = run_matcher(dst_org, excel_name)
     except Exception as e:
         print("\nERROR DURING PROCESS! Please check the logs. \n")
         __logger.debug(f"{e} \n{traceback.format_exc()}")
+        output_excel_name = None
     
     # --------- END -------------------------------------------------
     end_time = datetime.now()
     __logger.info(f"Process is complete. Total Time: {end_time-start_time}")
 
-    return 0
+    return output_excel_name
 # ---------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     print("------ RUNNING FROM main.py ------")
 
-    main()
+    _ = main()

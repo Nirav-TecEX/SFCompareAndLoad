@@ -16,7 +16,9 @@ def load_match_string_debug_vars():
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ruleseng', env_vars=None, debug_mode=False):
+def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ruleseng', env_vars=None, 
+                  debug_mode=False, output_excel_name='test_output.xlsx'):
+
     """ Takes id(s) and maps it from its current org to another org. The current state of org ids are 
         loaded from the current excel files in the cache/ORG_NAME folder. 
 
@@ -54,7 +56,8 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
         input_key_row = src_additional_info[sheet]['input_key_start'][1][0]
         current_sheet = src_file[sheet]
         group_org_name = src_org.split("--")[0]
-        matching_obj.update_mappers(group_org_name, mappings_folder)
+        temp_sf = get_temp_sf_obj(group_org_name, env_vars)
+        matching_obj.update_mappers(group_org_name, mappings_folder, temp_sf)
 
         # --- Done for each id in sheet ---
         for row_index in range(input_key_row, len(current_sheet)):
@@ -111,7 +114,7 @@ def match_strings(src_file, src_additional_info, user_config, dst_org='tecex--ru
         # run src_file["Sheet1"][98:99]   
         __logger.info(f"New Id: {src_file['Sheet1'][98:99]}")
         __logger.info(f"New Id: {src_file['Sheet2'][98:99]}")
-    write_to_output_excel(src_file)
+    write_to_output_excel(src_file, output_excel_name)
 
     return 0
 
@@ -198,11 +201,21 @@ def is_id(id):
 # ---------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------
-def write_to_output_excel(src_file):
+def write_to_output_excel(src_file, output_excel_name):
     """ Creates an output file with the new data. """
     __logger.info("Writing to NEW EXCEL. ")
-    with pd.ExcelWriter('test_output.xlsx', engine='openpyxl') as writer:
+    with pd.ExcelWriter(output_excel_name, engine='openpyxl') as writer:
         for sheet in src_file.keys():
             src_file[sheet].to_excel(writer, sheet_name=sheet, index=False)
         writer.save()
+# ---------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------
+def get_temp_sf_obj(group_org_name, __env_vars__):
+    group_org_name = 'zee' if not 'tec' in group_org_name.lower() else 'tec'
+    sf = ComplexSF('production',
+                    __env_vars__(f"{group_org_name}_Username"),
+                    __env_vars__(f"{group_org_name}_Password"),
+                    __env_vars__(f"{group_org_name}_Token"))
+    return sf
 # ---------------------------------------------------------------------------------------------------------

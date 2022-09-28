@@ -143,11 +143,8 @@ def update_id_to_obj_mapper(saving_path, sf: ComplexSF):
     all_objects = sf.describe()['sobjects']
     prefix_dict = {all_objects[i]['keyPrefix'] : all_objects[i]['name'] for i in range(len(all_objects))}
 
-    prefix_out_path = os.path.join(os.getcwd(), saving_path, 
-                                   f"{sf.sf_instance.split('.')[0]}_mappings.json") 
-    __logger.info(f"Saving to {prefix_out_path}")
-    # create_config(prefix_out_path, dict_to_write=prefix_dict)
-    with open(prefix_out_path, 'w+') as outstream:
+    __logger.info(f"Saving to {saving_path}")
+    with open(saving_path, 'w+') as outstream:
         outstream.write(json.dumps(prefix_dict, indent = 4))
 # ---------------------------------------------------------------------------------------------------------
 
